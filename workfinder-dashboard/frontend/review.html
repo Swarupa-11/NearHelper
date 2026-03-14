@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave Review - NearHelper</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: Poppins, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      max-width: 450px;
+      width: 90%;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      font-size: 50px;
+      margin: 30px 0;
+    }
+    .star {
+      cursor: pointer;
+      color: #ddd;
+      transition: 0.2s;
+    }
+    .star.active {
+      color: #ffa500;
+    }
+    .star:hover {
+      transform: scale(1.2);
+    }
+    textarea {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 120px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .back-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .back-link a {
+      color: #667eea;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Rate Your Experience</h2>
+    <div class="stars" id="stars">
+      <span class="star" onclick="setRating(1)">★</span>
+      <span class="star" onclick="setRating(2)">★</span>
+      <span class="star" onclick="setRating(3)">★</span>
+      <span class="star" onclick="setRating(4)">★</span>
+      <span class="star" onclick="setRating(5)">★</span>
+    </div>
+    <textarea id="comment" placeholder="Share your experience with this worker..."></textarea>
+    <button class="btn" onclick="submitReview()">Submit Review</button>
+    <div class="back-link">
+      <a href="requests.html">← Back to Requests</a>
+    </div>
+  </div>
+
+  <script>
+    let selectedRating = 0;
+    const reviewData = JSON.parse(localStorage.getItem('reviewData') || '{}');
+
+    if (!reviewData.workerId) {
+      alert('Invalid review data');
+      window.location.href = 'requests.html';
+    }
+
+    function setRating(rating) {
+      selectedRating = rating;
+      document.querySelectorAll('.star').forEach((star, i) => {
+        star.classList.toggle('active', i < rating);
+      });
+    }
+
+    async function submitReview() {
+      if (selectedRating === 0) {
+        alert('Please select a rating');
+        return;
+      }
+      
+      try {
+        const response = await fetch('http://localhost:3004/api/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            workerId: reviewData.workerId,
+            workFinderId: reviewData.workFinderId,
+            jobRequestId: reviewData.jobRequestId,
+            rating: selectedRating,
+            comment: document.getElementById('comment').value
+          })
+        });
+        
+        if (response.ok) {
+          alert('Review submitted successfully!');
+          localStorage.removeItem('reviewData');
+          window.location.href = 'requests.html';
+        } else {
+          alert('Failed to submit review');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

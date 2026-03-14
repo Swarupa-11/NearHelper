@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkFinder Dashboard - NearHelper</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">NearHelper</div>
+    <nav>
+      <a href="#" class="nav-item active" onclick="showPanel('profile')">
+        <span class="icon">👤</span> <span data-translate="profile">Profile</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showPanel('search')">
+        <span class="icon">🔍</span> <span data-translate="search">Search Workers</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showPanel('requests')">
+        <span class="icon">📋</span> <span data-translate="requests">My Requests</span>
+        <span id="requestBadge" class="badge"></span>
+      </a>
+      <a href="#" class="nav-item" onclick="showPanel('settings')">
+        <span class="icon">⚙️</span> <span data-translate="settings">Settings</span>
+      </a>
+      <a href="#" class="nav-item logout" onclick="logout()">
+        <span class="icon">🚪</span> <span data-translate="logout">Logout</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <!-- Profile Panel -->
+    <div id="profilePanel" class="panel active">
+      <h1 id="welcomeMsg">My Profile</h1>
+      <div class="profile-card">
+        <div class="profile-info">
+          <h2 id="userName"></h2>
+          <p><strong>📞 Phone:</strong> <span id="userPhone">Loading...</span></p>
+          <p><strong>📍 Location:</strong> <span id="userLocation">Not set</span></p>
+        </div>
+        <button onclick="updateFinderLocation()" class="btn-primary" data-translate="updateLocation">Update Location</button>
+      </div>
+    </div>
+
+    <!-- Search Panel -->
+    <div id="searchPanel" class="panel">
+      <h1>Search Workers</h1>
+      <div class="search-card">
+        <div class="form-group">
+          <label data-translate="workerType">Worker Type</label>
+          <select id="workerType">
+            <option value="">All Types</option>
+            <option value="domestic" data-translate="domestic">Domestic Workers</option>
+            <option value="agricultural" data-translate="agricultural">Agricultural Workers</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label data-translate="radius">Search Radius (km)</label>
+          <input type="number" id="radius" value="10" min="1" max="100">
+        </div>
+
+        <div class="form-group">
+          <label data-translate="skills">Skills (comma separated)</label>
+          <input type="text" id="skills" data-translate-placeholder="skills" placeholder="e.g., cooking, cleaning, driving">
+        </div>
+
+        <button onclick="searchWorkers()" class="btn-primary" data-translate="searchBtn">🔍 Search Workers</button>
+      </div>
+
+      <div class="results-section">
+        <h2>Available Workers <span id="resultCount"></span></h2>
+        <div id="workersList" class="workers-grid"></div>
+      </div>
+    </div>
+
+    <!-- Requests Panel -->
+    <div id="requestsPanel" class="panel">
+      <h1>My Work Requests</h1>
+      <div class="tabs">
+        <button class="tab active" onclick="filterRequests('all')" data-translate="allRequests">All</button>
+        <button class="tab" onclick="filterRequests('pending')" data-translate="pending">Pending</button>
+        <button class="tab" onclick="filterRequests('accepted')" data-translate="accepted">Accepted</button>
+        <button class="tab" onclick="filterRequests('completed')" data-translate="completed">Completed</button>
+      </div>
+      <div id="requestsList"></div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settingsPanel" class="panel">
+      <h1>Settings</h1>
+      
+      <div class="settings-card">
+        <h3>🌐 <span data-translate="language">Language</span></h3>
+        <select id="languageSelect" onchange="changeLanguage()">
+          <option value="en">English</option>
+          <option value="hi">हिंदी (Hindi)</option>
+          <option value="te">తెలుగు (Telugu)</option>
+          <option value="ta">தமிழ் (Tamil)</option>
+          <option value="kn">ಕನ್ನಡ (Kannada)</option>
+          <option value="ml">മലയാളം (Malayalam)</option>
+        </select>
+      </div>
+
+      <div class="settings-card">
+        <h3>🎨 <span data-translate="theme">Theme</span></h3>
+        <div class="theme-options">
+          <button class="theme-btn" onclick="changeTheme('light')">☀️ <span data-translate="light">Light</span></button>
+          <button class="theme-btn" onclick="changeTheme('dark')">🌙 <span data-translate="dark">Dark</span></button>
+          <button class="theme-btn" onclick="changeTheme('blue')">💙 <span data-translate="blue">Blue</span></button>
+          <button class="theme-btn" onclick="changeTheme('green')">💚 <span data-translate="green">Green</span></button>
+        </div>
+      </div>
+
+      <div class="settings-card danger-zone">
+        <h3>⚠️ Danger Zone</h3>
+        <p>Once you delete your account, there is no going back. Please be certain.</p>
+        <button onclick="deleteAccount()" class="btn-danger" data-translate="deleteAccount">Delete Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Worker Details Modal -->
+  <div id="workerModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Worker Details</h2>
+      <div id="workerDetails"></div>
+    </div>
+  </div>
+
+  <!-- Review Modal -->
+  <div id="reviewModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeReviewModal()">&times;</span>
+      <h2 data-translate="leaveReview">Leave Review</h2>
+      <div class="stars" id="reviewStars">
+        <span class="star" onclick="setRating(1)">★</span>
+        <span class="star" onclick="setRating(2)">★</span>
+        <span class="star" onclick="setRating(3)">★</span>
+        <span class="star" onclick="setRating(4)">★</span>
+        <span class="star" onclick="setRating(5)">★</span>
+      </div>
+      <textarea id="reviewComment" placeholder="Share your experience..."></textarea>
+      <button onclick="submitReview()" class="btn-primary" data-translate="submitReview">Submit Review</button>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

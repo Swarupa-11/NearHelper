@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Requests - NearHelper</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .request-card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .request-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .worker-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-accepted { background: #d4edda; color: #155724; }
+    .status-rejected { background: #f8d7da; color: #721c24; }
+    .status-completed { background: #d1ecf1; color: #0c5460; }
+    .request-description {
+      color: #666;
+      margin: 10px 0;
+    }
+    .request-date {
+      color: #999;
+      font-size: 14px;
+    }
+    .review-btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .back-btn {
+      margin: 20px;
+      padding: 10px 20px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button onclick="goBack()" class="back-btn">← Back to Dashboard</button>
+    
+    <div class="header">
+      <h1>My Work Requests</h1>
+    </div>
+
+    <div id="requestsList"></div>
+  </div>
+
+  <script>
+    const workFinderId = localStorage.getItem('workFinderId');
+
+    if (!workFinderId) {
+      alert('Please login first');
+      window.location.href = '../../workfinder-auth/frontend/index.html';
+    }
+
+    async function loadRequests() {
+      try {
+        const response = await fetch(`http://localhost:3004/api/workfinder/${workFinderId}/requests`);
+        const requests = await response.json();
+        
+        const container = document.getElementById('requestsList');
+        
+        if (requests.length === 0) {
+          container.innerHTML = '<div class="no-results">No requests yet. Search for workers and send requests!</div>';
+          return;
+        }
+        
+        container.innerHTML = requests.map(req => `
+          <div class="request-card">
+            <div class="request-header">
+              <div class="worker-name">${req.workerId?.name || 'Worker'}</div>
+              <span class="status-badge status-${req.status}">${req.status}</span>
+            </div>
+            <div class="request-description">${req.description}</div>
+            <div class="request-date">
+              Requested on: ${new Date(req.createdAt).toLocaleDateString()}
+              ${req.completedAt ? ` | Completed: ${new Date(req.completedAt).toLocaleDateString()}` : ''}
+            </div>
+            <div style="margin-top:10px;">
+              <strong>Worker Phone:</strong> ${req.workerId?.phone || 'N/A'}
+            </div>
+            ${req.status === 'completed' ? `
+              <button class="review-btn" onclick="leaveReview('${req._id}', '${req.workerId._id}')">
+                Leave Review
+              </button>
+            ` : ''}
+          </div>
+        `).join('');
+      } catch (err) {
+        alert('Error loading requests: ' + err.message);
+      }
+    }
+
+    function leaveReview(jobRequestId, workerId) {
+      localStorage.setItem('reviewData', JSON.stringify({ 
+        jobRequestId, 
+        workerId, 
+        workFinderId 
+      }));
+      window.location.href = 'review.html';
+    }
+
+    function goBack() {
+      window.location.href = 'index.html';
+    }
+
+    loadRequests();
+  </script>
+</body>
+</html>

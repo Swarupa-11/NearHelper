@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker Dashboard - NearHelper</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Worker Dashboard</h1>
+      <div class="header-actions">
+        <button onclick="viewJobRequests()" class="requests-btn">📝 Job Requests <span id="requestBadge" class="badge"></span></button>
+        <button onclick="logout()" class="logout-btn">Logout</button>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h2>My Profile</h2>
+      <div class="profile-info">
+        <p><strong>Name:</strong> <span id="workerName"></span></p>
+        <p><strong>Phone:</strong> <span id="workerPhone"></span></p>
+        <p><strong>Type:</strong> <span id="workerType"></span></p>
+        <p><strong>Skills:</strong> <span id="workerSkills"></span></p>
+        <p><strong>Experience:</strong> <span id="workerExperience"></span> years</p>
+        <p><strong>Address:</strong> <span id="workerAddress"></span></p>
+      </div>
+    </div>
+
+    <div class="availability-section">
+      <h2>Availability Status</h2>
+      <div class="status-toggle">
+        <label>
+          <input type="radio" name="availability" value="available" onchange="updateAvailability()"> Available
+        </label>
+        <label>
+          <input type="radio" name="availability" value="busy" onchange="updateAvailability()"> Busy
+        </label>
+      </div>
+      
+      <div id="busySection" style="display:none;">
+        <label>Expected Completion Time:</label>
+        <input type="datetime-local" id="completionTime">
+        <button onclick="setCompletionTime()">Set Time</button>
+      </div>
+    </div>
+
+    <div class="location-section">
+      <h2>Update Location</h2>
+      <button onclick="updateLocation()" class="location-btn">Update My Current Location</button>
+      <p id="locationStatus"></p>
+    </div>
+
+    <div class="edit-section">
+      <h2>Edit Profile</h2>
+      <form onsubmit="updateProfile(event)">
+        <div class="form-group">
+          <label>Skills (comma separated)</label>
+          <input type="text" id="editSkills">
+        </div>
+        <div class="form-group">
+          <label>Experience (years)</label>
+          <input type="number" id="editExperience">
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <textarea id="editAddress"></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Update Profile</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

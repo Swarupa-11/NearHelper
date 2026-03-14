@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NearHelper - Find Workers Nearby</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    text-align: center;
+    padding: 40px 20px;
+    max-width: 500px;
+    width: 90%;
+}
+
+.logo {
+    font-size: 48px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 10px;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.tagline {
+    color: rgba(255,255,255,0.9);
+    font-size: 18px;
+    margin-bottom: 50px;
+}
+
+.role-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.role-card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+    color: #333;
+}
+
+.role-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+}
+
+.role-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+.role-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #667eea;
+}
+
+.role-desc {
+    color: #64748b;
+    font-size: 14px;
+}
+
+@media (min-width: 600px) {
+    .role-selection {
+        flex-direction: row;
+    }
+    .role-card {
+        flex: 1;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo">NearHelper</div>
+    <div class="tagline">Connect with skilled workers nearby</div>
+    
+    <div class="role-selection">
+        <div class="role-card" onclick="selectRole('finder')">
+            <div class="role-icon">🔍</div>
+            <div class="role-title">Work Finder</div>
+            <div class="role-desc">Looking for workers to hire</div>
+        </div>
+        
+        <div class="role-card" onclick="selectRole('worker')">
+            <div class="role-icon">👷</div>
+            <div class="role-title">Worker</div>
+            <div class="role-desc">Offering services to clients</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectRole(role) {
+    if (role === 'finder') {
+        window.location.href = 'workfinder-auth/frontend/index.html';
+    } else if (role === 'worker') {
+        window.location.href = 'worker-auth/frontend/index.html';
+    }
+}
+</script>
+
+</body>
+</html>

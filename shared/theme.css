@@ -1,0 +1,128 @@
+/* NearHelper - Shared Theme Colors */
+
+:root {
+  /* Dark Theme - Blue Shades */
+  --bg-deep: hsl(233, 56%, 10%);
+  --bg-mid: hsl(233, 56%, 16%);
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --blue-core: #4a90e2;
+  --blue-light: #6db3ff;
+  --blue-dark: #3a7bd5;
+  --blue-glow: rgba(74, 144, 226, 0.35);
+  --text-primary: #f8fafc;
+  --text-soft: #94afc8;
+  --text-faint: #4a637d;
+  --border-color: rgba(74, 144, 226, 0.3);
+  --shadow-color: rgba(74, 144, 226, 0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', Arial, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Background Effects */
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(74,144,226,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(109,179,255,0.12) 0%, transparent 55%),
+    var(--bg-deep);
+}
+
+/* Common Styles */
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 30px;
+  background: var(--bg-mid);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
+}
+
+h1, h2 {
+  background: linear-gradient(135deg, #ffffff 0%, var(--blue-light) 60%, var(--blue-core) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Form Elements */
+input, select, textarea {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--blue-core);
+  box-shadow: 0 0 0 3px var(--blue-glow);
+}
+
+/* Buttons */
+button {
+  background: linear-gradient(135deg, var(--blue-core) 0%, var(--blue-dark) 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--shadow-color);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  backdrop-filter: blur(12px);
+}
+
+.btn-secondary:hover {
+  background: rgba(74, 144, 226, 0.1);
+  border-color: var(--blue-core);
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+}
+
+/* Labels */
+label {
+  color: var(--text-soft);
+  font-weight: 600;
+  font-size: 14px;
+}

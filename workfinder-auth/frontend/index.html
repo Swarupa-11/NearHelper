@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer/Farmer Registration - NearHelper</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 id="title">Find Workers Near You</h1>
+      <div class="language-selector">
+        <select id="languageSelect" onchange="changeLanguage()">
+          <option value="en">English</option>
+          <option value="hi">हिंदी</option>
+          <option value="te">తెలుగు</option>
+          <option value="ta">தமிழ்</option>
+        </select>
+        <button onclick="toggleVoice()" id="voiceBtn">🔊 Voice ON</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('register')">Register</button>
+      <button class="tab" onclick="showTab('login')">Login</button>
+    </div>
+
+    <div id="registerForm" class="form-container">
+      <form onsubmit="registerUser(event)">
+        <div class="form-group">
+          <label id="nameLabel">Name</label>
+          <input type="text" id="name" required>
+          <button type="button" onclick="startVoiceInput('name')">🎤</button>
+        </div>
+
+        <div class="form-group">
+          <label id="phoneLabel">Phone Number</label>
+          <input type="tel" id="phone" pattern="[0-9]{10}" required>
+        </div>
+
+        <div class="form-group">
+          <label id="userTypeLabel">I am a</label>
+          <select id="userType" required>
+            <option value="household" id="householdOption">Household Customer</option>
+            <option value="farmer" id="farmerOption">Farmer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label id="addressLabel">Address</label>
+          <textarea id="address" required></textarea>
+          <button type="button" onclick="startVoiceInput('address')">🎤</button>
+        </div>
+
+        <div class="form-group">
+          <button type="button" onclick="getLocation()" id="locationBtn">Get My Location</button>
+          <span id="locationStatus"></span>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Register</button>
+      </form>
+    </div>
+
+    <div id="loginForm" class="form-container" style="display:none;">
+      <form onsubmit="loginUser(event)">
+        <div class="form-group">
+          <label id="loginPhoneLabel">Phone Number</label>
+          <input type="tel" id="loginPhone" pattern="[0-9]{10}" required>
+        </div>
+
+        <div class="form-group">
+          <label>OTP</label>
+          <input type="text" id="otp" maxlength="4" placeholder="Enter 1234 for demo">
+        </div>
+
+        <button type="submit" class="submit-btn" id="loginBtn">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
