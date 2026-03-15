@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3002;
 
 connectDB();
 
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.static('../frontend'));
 
