@@ -152,7 +152,8 @@ async function registerUser(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, otp: regOtp })
     });
-    if (!otpRes.ok) { alert('Invalid OTP'); return; }
+    const otpData = await otpRes.json();
+    if (!otpRes.ok) { alert('Invalid OTP: ' + (otpData.error || otpData.message)); return; }
   } catch (err) {
     alert('OTP verification failed: ' + err.message);
     return;
