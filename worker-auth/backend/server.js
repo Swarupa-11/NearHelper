@@ -2,9 +2,16 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
 const Worker = require('./models/Worker');
+const twilio = require('twilio');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+const VERIFY_SERVICE_SID = process.env.TWILIO_VERIFY_SID;
 
 connectDB();
 
@@ -71,13 +78,31 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Verify OTP (simulated)
+// Send OTP
+app.post('/api/send-otp', async (req, res) => {
+  const { phone } = req.body;
+  try {
+    await twilioClient.verify.v2.services(VERIFY_SERVICE_SID)
+      .verifications.create({ to: `+91${phone}`, channel: 'sms' });
+    res.json({ message: 'OTP sent successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to send OTP', error: err.message });
+  }
+});
+
+// Verify OTP
 app.post('/api/verify-otp', async (req, res) => {
   const { phone, otp } = req.body;
-  if (otp === '1234') {
-    res.json({ message: 'OTP verified', verified: true });
-  } else {
-    res.status(400).json({ message: 'Invalid OTP' });
+  try {
+    const result = await twilioClient.verify.v2.services(VERIFY_SERVICE_SID)
+      .verificationChecks.create({ to: `+91${phone}`, code: otp });
+    if (result.status === 'approved') {
+      res.json({ message: 'OTP verified', verified: true });
+    } else {
+      res.status(400).json({ message: 'Invalid OTP' });
+    }
+  } catch (err) {
+    res.status(400).json({ message: 'Invalid OTP', error: err.message });
   }
 });
 

@@ -84,7 +84,8 @@
 
         <div class="form-group">
           <label>OTP Verification</label>
-          <input type="text" id="otp" maxlength="4" placeholder="Enter OTP (use 1234 for demo)">
+          <button type="button" onclick="sendOTP('workfinder')" class="submit-btn" style="margin-bottom:10px; background:linear-gradient(135deg,#11998e,#38ef7d);">📱 Send OTP</button>
+          <input type="text" id="otp" maxlength="6" placeholder="Enter OTP received on your phone">
         </div>
 
         <button type="submit" class="submit-btn" id="loginBtn">Login →</button>

@@ -156,7 +156,31 @@ async function registerWorker(e) {
   }
 }
 
-async function loginWorker(e) {
+async function sendOTP(type) {
+  const phone = document.getElementById('loginPhone').value;
+  if (!phone || phone.length !== 10) {
+    alert('Please enter a valid 10-digit phone number first');
+    return;
+  }
+  try {
+    const url = type === 'worker' ? CONFIG.WORKER_AUTH_URL : CONFIG.WORKFINDER_AUTH_URL;
+    const res = await fetch(`${url}/api/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert('OTP sent to your phone!');
+    } else {
+      alert('Failed to send OTP: ' + data.message);
+    }
+  } catch (err) {
+    alert('Error sending OTP: ' + err.message);
+  }
+}
+
+
   e.preventDefault();
   
   const phone = document.getElementById('loginPhone').value;
