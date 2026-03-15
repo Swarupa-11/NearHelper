@@ -118,7 +118,7 @@ function showTab(tab) {
 async function sendOTP(e) {
   e.preventDefault();
   const name = document.getElementById('name').value.trim();
-  const phone = document.getElementById('phone').value.trim();
+  const phone = document.getElementById('phone').value.trim().replace(/\s+/g, '');
   const address = document.getElementById('address').value.trim();
   const error = document.getElementById('regError');
   error.textContent = '';
