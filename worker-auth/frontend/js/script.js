@@ -115,6 +115,27 @@ function showTab(tab) {
   }
 }
 
+async function sendRegOTP(type) {
+  const phone = document.getElementById('phone').value;
+  if (!phone || phone.length !== 10) {
+    alert('Please enter a valid 10-digit phone number first');
+    return;
+  }
+  try {
+    const url = type === 'worker' ? CONFIG.WORKER_AUTH_URL : CONFIG.WORKFINDER_AUTH_URL;
+    const res = await fetch(`${url}/api/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+    if (res.ok) alert('OTP sent to your phone!');
+    else alert('Failed to send OTP: ' + data.message);
+  } catch (err) {
+    alert('Error sending OTP: ' + err.message);
+  }
+}
+
 async function registerWorker(e) {
   e.preventDefault();
   
@@ -122,7 +143,23 @@ async function registerWorker(e) {
     alert('Please capture your location first');
     return;
   }
-  
+
+  const phone = document.getElementById('phone').value;
+  const regOtp = document.getElementById('regOtp').value;
+  if (!regOtp) { alert('Please enter the OTP sent to your phone'); return; }
+
+  try {
+    const otpRes = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/verify-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, otp: regOtp })
+    });
+    if (!otpRes.ok) { alert('Invalid OTP'); return; }
+  } catch (err) {
+    alert('OTP verification failed: ' + err.message);
+    return;
+  }
+
   const data = {
     name: document.getElementById('name').value,
     phone: document.getElementById('phone').value,
