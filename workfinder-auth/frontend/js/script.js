@@ -113,25 +113,68 @@ function showTab(tab) {
   }
 }
 
+let regOtpCooldown = null;
+
 async function sendRegOTP(type) {
   const phone = document.getElementById('phone').value;
   if (!phone || phone.length !== 10) {
     alert('Please enter a valid 10-digit phone number first');
     return;
   }
+  const url = type === 'worker' ? CONFIG.WORKER_AUTH_URL : CONFIG.WORKFINDER_AUTH_URL;
+
+  // Check if phone already registered
   try {
-    const url = type === 'worker' ? CONFIG.WORKER_AUTH_URL : CONFIG.WORKFINDER_AUTH_URL;
+    const checkRes = await fetch(`${url}/api/check-phone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    if (!checkRes.ok) {
+      const d = await checkRes.json();
+      alert(d.message);
+      return;
+    }
+  } catch (err) {
+    alert('Error checking phone: ' + err.message);
+    return;
+  }
+
+  try {
     const res = await fetch(`${url}/api/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })
     });
     const data = await res.json();
-    if (res.ok) alert('OTP sent to your phone!');
-    else alert('Failed to send OTP: ' + data.message);
+    if (!res.ok) { alert('Failed to send OTP: ' + data.message); return; }
+    alert('OTP sent to your phone!');
+    startRegOtpCooldown();
   } catch (err) {
     alert('Error sending OTP: ' + err.message);
   }
+}
+
+function startRegOtpCooldown() {
+  const sendBtn = document.getElementById('sendRegOtpBtn');
+  const resendBtn = document.getElementById('resendRegOtpBtn');
+  const timer = document.getElementById('regOtpTimer');
+  sendBtn.style.display = 'none';
+  resendBtn.style.display = 'block';
+  resendBtn.disabled = true;
+  let seconds = 30;
+  timer.textContent = `Resend in ${seconds}s`;
+  clearInterval(regOtpCooldown);
+  regOtpCooldown = setInterval(() => {
+    seconds--;
+    if (seconds <= 0) {
+      clearInterval(regOtpCooldown);
+      resendBtn.disabled = false;
+      timer.textContent = '';
+    } else {
+      timer.textContent = `Resend in ${seconds}s`;
+    }
+  }, 1000);
 }
 
 async function registerUser(e) {

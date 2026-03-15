@@ -29,8 +29,19 @@ app.options('*', (req, res) => {
 // Register WorkFinder
 app.post('/api/register', async (req, res) => {
   try {
-    const { name, phone, userType, location, address } = req.body;
-    
+    const { name, phone, userType, location, address, otp } = req.body;
+
+    // Verify OTP first
+    try {
+      const result = await getTwilioClient().verify.v2.services(VERIFY_SERVICE_SID)
+        .verificationChecks.create({ to: `+91${phone}`, code: otp });
+      if (result.status !== 'approved') {
+        return res.status(400).json({ message: 'Invalid OTP' });
+      }
+    } catch (err) {
+      return res.status(400).json({ message: 'OTP verification failed', error: err.message });
+    }
+
     const existingUser = await WorkFinder.findOne({ phone });
     if (existingUser) {
       return res.status(400).json({ message: 'Phone number already registered' });
@@ -68,6 +79,14 @@ app.post('/api/login', async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Login failed', error: err.message });
   }
+});
+
+// Check phone uniqueness
+app.post('/api/check-phone', async (req, res) => {
+  const { phone } = req.body;
+  const existing = await WorkFinder.findOne({ phone });
+  if (existing) return res.status(400).json({ message: 'Phone number already registered' });
+  res.json({ available: true });
 });
 
 // Send OTP

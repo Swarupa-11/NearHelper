@@ -77,6 +77,14 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// Check phone uniqueness
+app.post('/api/check-phone', async (req, res) => {
+  const { phone } = req.body;
+  const existing = await Worker.findOne({ phone });
+  if (existing) return res.status(400).json({ message: 'Phone number already registered' });
+  res.json({ available: true });
+});
+
 // Send OTP
 app.post('/api/send-otp', async (req, res) => {
   const { phone } = req.body;
