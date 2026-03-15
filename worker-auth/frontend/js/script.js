@@ -152,8 +152,7 @@ async function sendOTP(e) {
 }
 
 async function sendOTPLogin(type) {
-  const phone = document.getElementById('loginPhone').value;
-  const phone = document.getElementById('loginPhone').value;
+  const phone = document.getElementById('loginPhone').value.trim().replace(/\s+/g, '');
   if (!phone || phone.length !== 10) {
     alert('Please enter a valid 10-digit phone number first');
     return;
