@@ -130,7 +130,7 @@ async function registerUser(e) {
   };
   
   try {
-    const response = await fetch('http://localhost:3003/api/register', {
+    const response = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -158,7 +158,7 @@ async function loginUser(e) {
   const otp = document.getElementById('otp').value;
   
   try {
-    const otpResponse = await fetch('http://localhost:3003/api/verify-otp', {
+    const otpResponse = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, otp })
@@ -169,7 +169,7 @@ async function loginUser(e) {
       return;
     }
     
-    const response = await fetch('http://localhost:3003/api/login', {
+    const response = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })

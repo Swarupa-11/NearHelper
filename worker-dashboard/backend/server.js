@@ -1,13 +1,13 @@
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('../../shared/config/database');
-const Worker = require('../../shared/models/Worker');
-const WorkFinder = require('../../shared/models/WorkFinder');
-const JobRequest = require('../../shared/models/JobRequest');
-const Review = require('../../shared/models/Review');
+const connectDB = require('./config/database');
+const Worker = require('./models/Worker');
+const WorkFinder = require('./models/WorkFinder');
+const JobRequest = require('./models/JobRequest');
+const Review = require('./models/Review');
 
 const app = express();
-const PORT = 3002;
+const PORT = process.env.PORT || 3002;
 
 connectDB();
 

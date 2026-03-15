@@ -33,7 +33,7 @@ function showPanel(panelName) {
 // Load User Profile
 async function loadUserProfile() {
   try {
-    const response = await fetch(`http://localhost:3004/api/workfinder/${workFinderId}`);
+    const response = await fetch(`${CONFIG.WORKFINDER_DASH_URL}/api/workfinder/${workFinderId}`);
     if (!response.ok) {
       const err = await response.json();
       alert('Failed to load profile: ' + err.message);
@@ -112,7 +112,7 @@ async function searchWorkers() {
   const skills = skillsInput ? skillsInput.split(',').map(s => s.trim().toLowerCase()) : [];
   
   try {
-    const response = await fetch('http://localhost:3004/api/search-workers', {
+    const response = await fetch(`${CONFIG.WORKFINDER_DASH_URL}/api/search-workers`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -164,10 +164,10 @@ function displayWorkers(workers) {
 
 async function showWorkerDetails(workerId) {
   try {
-    const response = await fetch(`http://localhost:3004/api/worker/${workerId}`);
+    const response = await fetch(`${CONFIG.WORKFINDER_DASH_URL}/api/worker/${workerId}`);
     const worker = await response.json();
     
-    const reviewsResponse = await fetch(`http://localhost:3002/api/worker/${workerId}/reviews`);
+    const reviewsResponse = await fetch(`${CONFIG.WORKER_DASHBOARD_URL}/api/worker/${workerId}/reviews`);
     const reviews = await reviewsResponse.json();
     
     const distance = workersData.find(w => w._id === workerId)?.distance || 'N/A';
@@ -219,7 +219,7 @@ async function sendRequest(workerId, workerName) {
   if (!description) return;
   
   try {
-    const response = await fetch('http://localhost:3004/api/job-request', {
+    const response = await fetch(`${CONFIG.WORKFINDER_DASH_URL}/api/job-request`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -244,7 +244,7 @@ async function sendRequest(workerId, workerName) {
 // Requests
 async function loadRequests() {
   try {
-    const response = await fetch(`http://localhost:3004/api/workfinder/${workFinderId}/requests`);
+    const response = await fetch(`${CONFIG.WORKFINDER_DASH_URL}/api/workfinder/${workFinderId}/requests`);
     allRequests = await response.json();
     displayRequests();
   } catch (err) {
@@ -297,7 +297,7 @@ function displayRequests() {
 
 async function loadRequestCount() {
   try {
-    const response = await fetch(`http://localhost:3004/api/workfinder/${workFinderId}/requests`);
+    const response = await fetch(`${CONFIG.WORKFINDER_DASH_URL}/api/workfinder/${workFinderId}/requests`);
     const requests = await response.json();
     const badge = document.getElementById('requestBadge');
     if (requests.length > 0) {
@@ -336,7 +336,7 @@ async function submitReview() {
   }
   
   try {
-    const response = await fetch('http://localhost:3004/api/review', {
+    const response = await fetch(`${CONFIG.WORKFINDER_DASH_URL}/api/review`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -459,7 +459,7 @@ async function deleteAccount() {
   if (confirm !== 'DELETE') return;
   
   try {
-    const response = await fetch(`http://localhost:3004/api/workfinder/${workFinderId}`, {
+    const response = await fetch(`${CONFIG.WORKFINDER_DASH_URL}/api/workfinder/${workFinderId}`, {
       method: 'DELETE'
     });
     

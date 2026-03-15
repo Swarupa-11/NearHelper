@@ -9,7 +9,13 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1 id="title">Worker Registration</h1>
+      <div class="header-left">
+        <span class="header-icon">👷</span>
+        <div>
+          <h1 id="title">Worker Registration</h1>
+          <div class="header-sub">Join NearHelper and find jobs near you</div>
+        </div>
+      </div>
       <div class="language-selector">
         <select id="languageSelect" onchange="changeLanguage()">
           <option value="en">English</option>
@@ -17,59 +23,67 @@
           <option value="te">తెలుగు</option>
           <option value="ta">தமிழ்</option>
         </select>
-        <button onclick="toggleVoice()" id="voiceBtn">🔊 Voice ON</button>
+        <button onclick="toggleVoice()" id="voiceBtn">🔊 Voice</button>
       </div>
     </div>
 
     <div class="tabs">
-      <button class="tab active" onclick="showTab('register')">Register</button>
-      <button class="tab" onclick="showTab('login')">Login</button>
+      <button class="tab active" onclick="showTab('register')">📝 Register</button>
+      <button class="tab" onclick="showTab('login')">🔑 Login</button>
     </div>
 
     <div id="registerForm" class="form-container">
       <form onsubmit="registerWorker(event)">
         <div class="form-group">
-          <label id="nameLabel">Name</label>
-          <input type="text" id="name" required>
-          <button type="button" onclick="startVoiceInput('name')">🎤</button>
+          <label id="nameLabel">Full Name</label>
+          <div class="input-wrap">
+            <input type="text" id="name" placeholder="Enter your full name" required>
+            <button type="button" class="voice-btn" onclick="startVoiceInput('name')">🎤</button>
+          </div>
         </div>
 
         <div class="form-group">
           <label id="phoneLabel">Phone Number</label>
-          <input type="tel" id="phone" pattern="[0-9]{10}" required>
+          <input type="tel" id="phone" pattern="[0-9]{10}" placeholder="10-digit mobile number" required>
         </div>
 
         <div class="form-group">
           <label id="workerTypeLabel">Worker Type</label>
           <select id="workerType" required>
-            <option value="domestic" id="domesticOption">Domestic Worker</option>
-            <option value="agricultural" id="agriculturalOption">Agricultural Worker</option>
+            <option value="domestic" id="domesticOption">🏠 Domestic Worker</option>
+            <option value="agricultural" id="agriculturalOption">🌾 Agricultural Worker</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label id="skillsLabel">Skills (comma separated)</label>
-          <input type="text" id="skills" required>
-          <button type="button" onclick="startVoiceInput('skills')">🎤</button>
+          <label id="skillsLabel">Skills</label>
+          <div class="input-wrap">
+            <input type="text" id="skills" placeholder="e.g. cooking, cleaning, driving" required>
+            <button type="button" class="voice-btn" onclick="startVoiceInput('skills')">🎤</button>
+          </div>
         </div>
 
         <div class="form-group">
           <label id="experienceLabel">Experience (years)</label>
-          <input type="number" id="experience" min="0" required>
+          <input type="number" id="experience" min="0" placeholder="Years of experience" required>
         </div>
 
         <div class="form-group">
           <label id="addressLabel">Address</label>
-          <textarea id="address" required></textarea>
-          <button type="button" onclick="startVoiceInput('address')">🎤</button>
+          <div class="input-wrap" style="align-items:flex-start;">
+            <textarea id="address" placeholder="Enter your full address" required></textarea>
+            <button type="button" class="voice-btn" onclick="startVoiceInput('address')">🎤</button>
+          </div>
         </div>
 
         <div class="form-group">
-          <button type="button" onclick="getLocation()" id="locationBtn">Get My Location</button>
+          <button type="button" onclick="getLocation()" id="locationBtn">📍 Get My Location</button>
           <span id="locationStatus"></span>
         </div>
 
-        <button type="submit" class="submit-btn" id="submitBtn">Register</button>
+        <button type="submit" class="submit-btn" id="submitBtn">Create Account →</button>
+
+        <div class="back-link">Already have an account? <a href="#" onclick="showTab('login')">Login here</a></div>
       </form>
     </div>
 
@@ -77,19 +91,32 @@
       <form onsubmit="loginWorker(event)">
         <div class="form-group">
           <label id="loginPhoneLabel">Phone Number</label>
-          <input type="tel" id="loginPhone" pattern="[0-9]{10}" required>
+          <input type="tel" id="loginPhone" pattern="[0-9]{10}" placeholder="Enter your registered phone" required>
         </div>
 
         <div class="form-group">
-          <label>OTP</label>
-          <input type="text" id="otp" maxlength="4" placeholder="Enter 1234 for demo">
+          <label>OTP Verification</label>
+          <input type="text" id="otp" maxlength="4" placeholder="Enter OTP (use 1234 for demo)">
         </div>
 
-        <button type="submit" class="submit-btn" id="loginBtn">Login</button>
+        <button type="submit" class="submit-btn" id="loginBtn">Login →</button>
+
+        <div class="back-link">New here? <a href="#" onclick="showTab('register')">Create an account</a></div>
+        <div class="back-link" style="margin-top:10px;"><a href="../../index.html">← Back to Home</a></div>
       </form>
     </div>
   </div>
 
+  <script src="../../config.js"></script>
   <script src="js/script.js"></script>
+  <script>
+    function showTab(tab) {
+      document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+      document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', (i === 0 && tab === 'register') || (i === 1 && tab === 'login'));
+      });
+    }
+  </script>
 </body>
 </html>

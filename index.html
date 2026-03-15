@@ -4,117 +4,301 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NearHelper - Find Workers Nearby</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
+
 body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  background: #0f0c29;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-.container {
-    text-align: center;
-    padding: 40px 20px;
-    max-width: 500px;
-    width: 90%;
+/* Animated background */
+.bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  background-size: 400% 400%;
+  animation: gradientShift 10s ease infinite;
+  z-index: 0;
 }
 
-.logo {
-    font-size: 48px;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 10px;
-    text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.tagline {
-    color: rgba(255,255,255,0.9);
-    font-size: 18px;
-    margin-bottom: 50px;
+/* Floating blobs */
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: float 8s ease-in-out infinite;
+  z-index: 0;
+}
+.blob1 { width:400px; height:400px; background:#667eea; top:-100px; left:-100px; animation-delay:0s; }
+.blob2 { width:300px; height:300px; background:#764ba2; bottom:-80px; right:-80px; animation-delay:3s; }
+.blob3 { width:250px; height:250px; background:#f093fb; top:50%; left:50%; animation-delay:5s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%       { transform: translateY(-30px) scale(1.05); }
 }
 
+/* Main content */
+.content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* Logo / Brand */
+.brand {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.brand-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 10px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+.brand-name {
+  font-size: 52px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 0%, #c3cfe2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+}
+
+.brand-tagline {
+  color: rgba(255,255,255,0.65);
+  font-size: 16px;
+  font-weight: 300;
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+
+/* Stats bar */
+.stats {
+  display: flex;
+  gap: 30px;
+  margin: 30px 0;
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50px;
+  padding: 14px 30px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Role cards */
 .role-selection {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 560px;
 }
 
 .role-card {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    cursor: pointer;
-    transition: 0.3s;
-    text-decoration: none;
-    color: #333;
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 35px 25px;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-decoration: none;
+  color: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
+
+.role-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: 24px;
+}
+
+.role-card.worker::before  { background: linear-gradient(135deg, rgba(102,126,234,0.4), rgba(118,75,162,0.4)); }
+.role-card.finder::before  { background: linear-gradient(135deg, rgba(17,153,142,0.4), rgba(56,239,125,0.4)); }
 
 .role-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(255,255,255,0.3);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
 }
 
+.role-card:hover::before { opacity: 1; }
+
 .role-icon {
-    font-size: 50px;
-    margin-bottom: 15px;
+  font-size: 52px;
+  margin-bottom: 16px;
+  display: block;
+  position: relative;
+  z-index: 1;
 }
 
 .role-title {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #667eea;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
 }
 
 .role-desc {
-    color: #64748b;
-    font-size: 14px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
 }
 
-@media (min-width: 600px) {
-    .role-selection {
-        flex-direction: row;
-    }
-    .role-card {
-        flex: 1;
-    }
+.role-arrow {
+  display: inline-block;
+  margin-top: 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  transition: 0.3s;
+  position: relative;
+  z-index: 1;
+}
+
+.role-card:hover .role-arrow {
+  color: white;
+  transform: translateX(4px);
+}
+
+/* Features */
+.features {
+  display: flex;
+  gap: 20px;
+  margin-top: 35px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 560px;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+}
+
+.feature span:first-child { font-size: 16px; }
+
+@media (max-width: 480px) {
+  .brand-name { font-size: 38px; }
+  .role-selection { flex-direction: column; }
+  .stats { gap: 20px; padding: 12px 20px; }
+  .stat-num { font-size: 16px; }
 }
 </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="logo">NearHelper</div>
-    <div class="tagline">Connect with skilled workers nearby</div>
-    
-    <div class="role-selection">
-        <div class="role-card" onclick="selectRole('finder')">
-            <div class="role-icon">🔍</div>
-            <div class="role-title">Work Finder</div>
-            <div class="role-desc">Looking for workers to hire</div>
-        </div>
-        
-        <div class="role-card" onclick="selectRole('worker')">
-            <div class="role-icon">👷</div>
-            <div class="role-title">Worker</div>
-            <div class="role-desc">Offering services to clients</div>
-        </div>
+<div class="bg"></div>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<div class="content">
+  <div class="brand">
+    <span class="brand-icon">📍</span>
+    <div class="brand-name">NearHelper</div>
+    <div class="brand-tagline">Connect with skilled workers in your area</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">500+</div>
+      <div class="stat-label">Workers</div>
     </div>
+    <div class="stat">
+      <div class="stat-num">1K+</div>
+      <div class="stat-label">Jobs Done</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4.8★</div>
+      <div class="stat-label">Rating</div>
+    </div>
+  </div>
+
+  <div class="role-selection">
+    <div class="role-card finder" onclick="selectRole('finder')">
+      <span class="role-icon">🔍</span>
+      <div class="role-title">Work Finder</div>
+      <div class="role-desc">Find and hire skilled workers near you instantly</div>
+      <div class="role-arrow">Get Started →</div>
+    </div>
+
+    <div class="role-card worker" onclick="selectRole('worker')">
+      <span class="role-icon">👷</span>
+      <div class="role-title">Worker</div>
+      <div class="role-desc">Offer your skills and find jobs in your area</div>
+      <div class="role-arrow">Join Now →</div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature"><span>📡</span><span>Live Location</span></div>
+    <div class="feature"><span>✅</span><span>Verified Workers</span></div>
+    <div class="feature"><span>⚡</span><span>Instant Booking</span></div>
+    <div class="feature"><span>🌐</span><span>Multi-language</span></div>
+  </div>
 </div>
 
 <script>
 function selectRole(role) {
-    if (role === 'finder') {
-        window.location.href = 'workfinder-auth/frontend/index.html';
-    } else if (role === 'worker') {
-        window.location.href = 'worker-auth/frontend/index.html';
-    }
+  if (role === 'finder') {
+    window.location.href = 'workfinder-auth/frontend/index.html';
+  } else {
+    window.location.href = 'worker-auth/frontend/index.html';
+  }
 }
 </script>
-
 </body>
 </html>

@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('../../shared/config/database');
-const WorkFinder = require('../../shared/models/WorkFinder');
+const connectDB = require('./config/database');
+const WorkFinder = require('./models/WorkFinder');
 
 const app = express();
-const PORT = 3003;
+const PORT = process.env.PORT || 3003;
 
 connectDB();
 

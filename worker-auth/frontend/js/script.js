@@ -135,7 +135,7 @@ async function registerWorker(e) {
   };
   
   try {
-    const response = await fetch('http://localhost:3001/api/register', {
+    const response = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -163,7 +163,7 @@ async function loginWorker(e) {
   const otp = document.getElementById('otp').value;
   
   try {
-    const otpResponse = await fetch('http://localhost:3001/api/verify-otp', {
+    const otpResponse = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, otp })
@@ -174,7 +174,7 @@ async function loginWorker(e) {
       return;
     }
     
-    const response = await fetch('http://localhost:3001/api/login', {
+    const response = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })

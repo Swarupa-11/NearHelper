@@ -30,7 +30,7 @@ function showPanel(panelName) {
 // Load Worker Profile
 async function loadWorkerProfile() {
   try {
-    const response = await fetch(`http://localhost:3002/api/worker/${workerId}`);
+    const response = await fetch(`${CONFIG.WORKER_DASHBOARD_URL}/api/worker/${workerId}`);
     workerData = await response.json();
     
     document.getElementById('workerName').textContent = workerData.name;
@@ -70,7 +70,7 @@ async function updateProfile(e) {
   const address = document.getElementById('editAddress').value;
   
   try {
-    const response = await fetch(`http://localhost:3002/api/worker/${workerId}`, {
+    const response = await fetch(`${CONFIG.WORKER_DASHBOARD_URL}/api/worker/${workerId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ skills, experience, address })
@@ -108,7 +108,7 @@ async function setCompletionTime() {
 
 async function saveAvailability(availability, completionTime) {
   try {
-    const response = await fetch(`http://localhost:3002/api/worker/${workerId}/availability`, {
+    const response = await fetch(`${CONFIG.WORKER_DASHBOARD_URL}/api/worker/${workerId}/availability`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ availability, expectedCompletionTime: completionTime })
@@ -132,7 +132,7 @@ async function updateLocation() {
   navigator.geolocation.getCurrentPosition(
     async (position) => {
       try {
-        const response = await fetch(`http://localhost:3002/api/worker/${workerId}/location`, {
+        const response = await fetch(`${CONFIG.WORKER_DASHBOARD_URL}/api/worker/${workerId}/location`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -159,7 +159,7 @@ async function updateLocation() {
 // Job Requests
 async function loadRequests() {
   try {
-    const response = await fetch(`http://localhost:3002/api/worker/${workerId}/requests`);
+    const response = await fetch(`${CONFIG.WORKER_DASHBOARD_URL}/api/worker/${workerId}/requests`);
     allRequests = await response.json();
     displayRequests();
   } catch (err) {
@@ -230,7 +230,7 @@ function displayRequests() {
 
 async function updateRequestStatus(requestId, status) {
   try {
-    const response = await fetch(`http://localhost:3002/api/job-request/${requestId}`, {
+    const response = await fetch(`${CONFIG.WORKER_DASHBOARD_URL}/api/job-request/${requestId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
@@ -250,7 +250,7 @@ async function updateRequestStatus(requestId, status) {
 
 async function loadRequestCount() {
   try {
-    const response = await fetch(`http://localhost:3002/api/worker/${workerId}/requests`);
+    const response = await fetch(`${CONFIG.WORKER_DASHBOARD_URL}/api/worker/${workerId}/requests`);
     const requests = await response.json();
     const pendingRequests = requests.filter(r => r.status === 'pending');
     const badge = document.getElementById('requestBadge');
@@ -280,7 +280,7 @@ async function deleteAccount() {
   if (confirm !== 'DELETE') return;
   
   try {
-    const response = await fetch(`http://localhost:3002/api/worker/${workerId}`, {
+    const response = await fetch(`${CONFIG.WORKER_DASHBOARD_URL}/api/worker/${workerId}`, {
       method: 'DELETE'
     });
     

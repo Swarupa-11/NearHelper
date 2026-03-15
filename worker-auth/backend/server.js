@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('../../shared/config/database');
-const Worker = require('../../shared/models/Worker');
+const connectDB = require('./config/database');
+const Worker = require('./models/Worker');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 connectDB();
 
