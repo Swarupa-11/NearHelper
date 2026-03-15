@@ -12,7 +12,14 @@ if (!workerId) {
 const savedTheme = localStorage.getItem('theme') || 'light';
 const savedLang = localStorage.getItem('language') || 'en';
 document.body.className = savedTheme;
-document.getElementById('languageSelect').value = savedLang;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('languageSelect');
+  if (sel) sel.value = savedLang;
+  applyTranslations(savedLang);
+  loadWorkerProfile();
+  loadRequestCount();
+});
 
 // Panel Navigation
 function showPanel(panelName) {
@@ -373,6 +380,3 @@ function logout() {
 }
 
 // Initialize
-applyTranslations(savedLang);
-loadWorkerProfile();
-loadRequestCount();
