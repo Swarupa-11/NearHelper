@@ -7,11 +7,10 @@ const twilio = require('twilio');
 const app = express();
 const PORT = process.env.PORT || 3003;
 
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
 const VERIFY_SERVICE_SID = process.env.TWILIO_VERIFY_SID;
+function getTwilioClient() {
+  return twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+}
 
 connectDB();
 
@@ -75,7 +74,7 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/send-otp', async (req, res) => {
   const { phone } = req.body;
   try {
-    await twilioClient.verify.v2.services(VERIFY_SERVICE_SID)
+    await getTwilioClient().verify.v2.services(VERIFY_SERVICE_SID)
       .verifications.create({ to: `+91${phone}`, channel: 'sms' });
     res.json({ message: 'OTP sent successfully' });
   } catch (err) {
@@ -87,7 +86,7 @@ app.post('/api/send-otp', async (req, res) => {
 app.post('/api/verify-otp', async (req, res) => {
   const { phone, otp } = req.body;
   try {
-    const result = await twilioClient.verify.v2.services(VERIFY_SERVICE_SID)
+    const result = await getTwilioClient().verify.v2.services(VERIFY_SERVICE_SID)
       .verificationChecks.create({ to: `+91${phone}`, code: otp });
     if (result.status === 'approved') {
       res.json({ message: 'OTP verified', verified: true });
