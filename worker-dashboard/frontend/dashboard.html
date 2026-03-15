@@ -80,31 +80,54 @@
     <!-- Availability Panel -->
     <div id="availabilityPanel" class="panel">
       <h1 data-translate="availabilityTitle">Availability & Location</h1>
-      
-      <div class="availability-card">
-        <h3 data-translate="availabilityStatus">📊 Availability Status</h3>
-        <div class="status-toggle">
-          <label>
-            <input type="radio" name="availability" value="available" onchange="updateAvailability()"> 
-            <span class="status-label available" data-translate="available">✓ Available</span>
-          </label>
-          <label>
-            <input type="radio" name="availability" value="busy" onchange="updateAvailability()"> 
-            <span class="status-label busy" data-translate="busy">⏳ Busy</span>
-          </label>
-        </div>
-        
-        <div id="busySection" style="display:none;">
-          <label data-translate="completionTime">Expected Completion Time:</label>
-          <input type="datetime-local" id="completionTime">
-          <button onclick="setCompletionTime()" class="btn-primary" data-translate="setTime">Set Time</button>
-        </div>
-      </div>
 
-      <div class="location-card">
-        <h3>📍 <span data-translate="availability">Update Location</span></h3>
-        <p id="locationStatus">Current location not set</p>
-        <button onclick="updateLocation()" class="btn-primary" data-translate="updateLocation">Update My Current Location</button>
+      <div class="avail-grid">
+        <!-- Status Card -->
+        <div class="avail-card">
+          <div class="avail-card-header">
+            <span class="avail-icon">📊</span>
+            <h3 data-translate="availabilityStatus">Availability Status</h3>
+          </div>
+          <div class="status-toggle">
+            <label class="status-option">
+              <input type="radio" name="availability" value="available" onchange="updateAvailability()">
+              <div class="status-box available-box">
+                <span class="status-emoji">✅</span>
+                <span class="status-text" data-translate="available">Available</span>
+                <span class="status-desc">Ready for work</span>
+              </div>
+            </label>
+            <label class="status-option">
+              <input type="radio" name="availability" value="busy" onchange="updateAvailability()">
+              <div class="status-box busy-box">
+                <span class="status-emoji">⏳</span>
+                <span class="status-text" data-translate="busy">Busy</span>
+                <span class="status-desc">Currently working</span>
+              </div>
+            </label>
+          </div>
+
+          <div id="busySection" style="display:none;" class="busy-section">
+            <label class="busy-label" data-translate="completionTime">Expected Completion Time</label>
+            <input type="datetime-local" id="completionTime" class="datetime-input">
+            <button onclick="setCompletionTime()" class="btn-primary" data-translate="setTime">Set Time</button>
+          </div>
+        </div>
+
+        <!-- Location Card -->
+        <div class="avail-card">
+          <div class="avail-card-header">
+            <span class="avail-icon">📍</span>
+            <h3>Current Location</h3>
+          </div>
+          <div class="location-display">
+            <div class="location-icon-wrap">🗺️</div>
+            <p id="locationStatus" class="location-text">Current location not set</p>
+          </div>
+          <button onclick="updateLocation()" class="btn-location" data-translate="updateLocation">
+            📡 Update My Current Location
+          </button>
+        </div>
       </div>
     </div>
 

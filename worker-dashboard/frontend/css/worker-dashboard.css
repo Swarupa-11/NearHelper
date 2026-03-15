@@ -457,7 +457,171 @@ body.green {
   --sidebar-bg: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
 }
 
-/* Responsive */
+/* Availability & Location Panel */
+.avail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 10px;
+}
+
+.avail-card {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.avail-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.avail-card-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.avail-icon {
+  font-size: 28px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.status-toggle {
+  display: flex;
+  gap: 16px;
+}
+
+.status-option {
+  flex: 1;
+  cursor: pointer;
+}
+
+.status-option input[type="radio"] {
+  display: none;
+}
+
+.status-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 12px;
+  border-radius: 16px;
+  border: 2px solid var(--border-color);
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.status-option input:checked + .available-box {
+  border-color: #22c55e;
+  background: rgba(34,197,94,0.1);
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.15);
+}
+
+.status-option input:checked + .busy-box {
+  border-color: #f59e0b;
+  background: rgba(245,158,11,0.1);
+  box-shadow: 0 0 0 4px rgba(245,158,11,0.15);
+}
+
+.status-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.status-emoji {
+  font-size: 32px;
+}
+
+.status-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.status-desc {
+  font-size: 12px;
+  color: #888;
+}
+
+.busy-section {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(245,158,11,0.08);
+  border-radius: 12px;
+  border: 1px dashed #f59e0b;
+}
+
+.busy-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f59e0b;
+  margin-bottom: 8px;
+}
+
+.datetime-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--card-bg);
+  color: var(--text-color);
+  margin-bottom: 12px;
+}
+
+.location-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08));
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+
+.location-icon-wrap {
+  font-size: 40px;
+}
+
+.location-text {
+  font-size: 15px;
+  color: var(--text-color);
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.btn-location {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 0.3px;
+}
+
+.btn-location:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+}
+
+@media (max-width: 768px) {
+  .avail-grid { grid-template-columns: 1fr; }
+}
+
+/* Availability & Location Panel */
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
