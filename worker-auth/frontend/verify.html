@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Verify OTP – NearHelper</title>
+<link rel="stylesheet" href="css/style.css"/>
+<style>
+  .otp-input { text-align:center; font-size:28px; letter-spacing:12px; font-weight:700; }
+  .phone-display { text-align:center; color:#64748b; font-size:14px; margin-bottom:24px; }
+  .phone-display strong { color:#667eea; }
+  .resend-row { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:14px; font-size:13px; color:#94a3b8; }
+  .resend-btn { background:none; border:none; color:#667eea; font-weight:600; cursor:pointer; font-family:Poppins,sans-serif; font-size:13px; }
+  .resend-btn:disabled { color:#94a3b8; cursor:default; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-left">
+      <span class="header-icon">📱</span>
+      <div>
+        <h1>Verify OTP</h1>
+        <div class="header-sub">Enter the code sent to your mobile</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-container">
+    <p class="phone-display">OTP sent to <strong id="phoneDisplay"></strong></p>
+
+    <div class="form-group">
+      <label>Enter OTP</label>
+      <input type="tel" id="otp" maxlength="6" placeholder="• • • • • •" class="otp-input"/>
+    </div>
+
+    <p id="error" style="color:#ef4444;font-size:13px;text-align:center;min-height:18px;"></p>
+    <button class="submit-btn" onclick="verifyOTP()">Verify & Continue →</button>
+
+    <div class="resend-row">
+      <span id="timerText">Resend in <strong id="countdown">30</strong>s</span>
+      <button class="resend-btn" id="resendBtn" disabled onclick="resendOTP()">Resend OTP</button>
+    </div>
+
+    <div class="back-link"><a href="index.html">← Back</a></div>
+  </div>
+</div>
+
+<script src="../../config.js"></script>
+<script>
+let countdown = 30;
+let timer;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const phone = localStorage.getItem('reg_phone');
+  if (!phone) { window.location.href = 'index.html'; return; }
+  document.getElementById('phoneDisplay').textContent = '+91 ' + phone;
+  startCountdown();
+});
+
+function startCountdown() {
+  countdown = 30;
+  document.getElementById('resendBtn').disabled = true;
+  document.getElementById('timerText').style.display = 'inline';
+  clearInterval(timer);
+  timer = setInterval(() => {
+    countdown--;
+    document.getElementById('countdown').textContent = countdown;
+    if (countdown <= 0) {
+      clearInterval(timer);
+      document.getElementById('timerText').style.display = 'none';
+      document.getElementById('resendBtn').disabled = false;
+    }
+  }, 1000);
+}
+
+async function resendOTP() {
+  const phone = localStorage.getItem('reg_phone');
+  try {
+    const res = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    if (res.ok) {
+      document.getElementById('error').textContent = '';
+      startCountdown();
+    } else {
+      const d = await res.json();
+      document.getElementById('error').textContent = d.message || 'Failed to resend OTP';
+    }
+  } catch (err) {
+    document.getElementById('error').textContent = 'Network error. Try again.';
+  }
+}
+
+async function verifyOTP() {
+  const otp = document.getElementById('otp').value.trim();
+  const phone = localStorage.getItem('reg_phone');
+  const error = document.getElementById('error');
+
+  if (!otp || otp.length < 4) { error.textContent = 'Please enter the OTP'; return; }
+
+  try {
+    const res = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/verify-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, otp })
+    });
+    if (res.ok) {
+      localStorage.setItem('reg_otp_verified', 'true');
+      window.location.href = 'profile-photo.html';
+    } else {
+      const d = await res.json();
+      error.textContent = d.error || d.message || 'Invalid OTP';
+    }
+  } catch (err) {
+    error.textContent = 'Network error. Try again.';
+  }
+}
+</script>
+</body>
+</html>

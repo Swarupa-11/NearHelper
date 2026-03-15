@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Profile Photo – NearHelper</title>
+<link rel="stylesheet" href="css/style.css"/>
+<style>
+  .steps { display:flex; justify-content:center; gap:8px; padding:16px 30px; background:#f8f9ff; border-bottom:1px solid #e8ecff; }
+  .step { width:32px; height:6px; border-radius:3px; background:#e2e8f0; }
+  .step.active { background:#667eea; }
+  .step.done { background:#10b981; }
+
+  .photo-wrap { display:flex; flex-direction:column; align-items:center; gap:16px; margin:10px 0 24px; }
+  .avatar-ring { width:150px; height:150px; border-radius:50%; border:3px dashed #667eea; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#f8fafc; cursor:pointer; transition:0.3s; }
+  .avatar-ring:hover { border-color:#764ba2; background:#f0f0ff; }
+  .avatar-ring img { width:100%; height:100%; object-fit:cover; display:none; }
+  .avatar-placeholder { font-size:52px; }
+  .upload-label { padding:11px 28px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border-radius:12px; cursor:pointer; font-weight:600; font-size:14px; font-family:Poppins,sans-serif; }
+  input[type="file"] { display:none; }
+  .skip-link { text-align:center; margin-top:10px; font-size:13px; }
+  .skip-link a { color:#94a3b8; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-left">
+      <span class="header-icon">📸</span>
+      <div>
+        <h1>Profile Photo</h1>
+        <div class="header-sub">Upload a clear photo of yourself</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step done"></div>
+    <div class="step active"></div>
+    <div class="step"></div>
+    <div class="step"></div>
+  </div>
+
+  <div class="form-container">
+    <div class="photo-wrap">
+      <div class="avatar-ring" onclick="document.getElementById('photoInput').click()">
+        <div class="avatar-placeholder" id="placeholder">👤</div>
+        <img id="preview" alt="Profile Preview"/>
+      </div>
+      <label class="upload-label" for="photoInput">Choose Photo</label>
+      <input type="file" id="photoInput" accept="image/*" onchange="handlePhoto(event)"/>
+    </div>
+
+    <p id="error" style="color:#ef4444;font-size:13px;text-align:center;min-height:18px;"></p>
+    <button class="submit-btn" onclick="proceed()">Next →</button>
+    <div class="skip-link"><a href="module-skills.html" onclick="localStorage.removeItem('reg_photo')">Skip for now</a></div>
+    <div class="back-link"><a href="verify.html">← Back</a></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (!localStorage.getItem('reg_otp_verified')) window.location.href = 'index.html';
+});
+
+let photoData = null;
+
+function handlePhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    photoData = e.target.result;
+    document.getElementById('preview').src = photoData;
+    document.getElementById('preview').style.display = 'block';
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('error').textContent = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function proceed() {
+  if (!photoData) { document.getElementById('error').textContent = 'Please upload a profile photo'; return; }
+  localStorage.setItem('reg_photo', photoData);
+  window.location.href = 'module-skills.html';
+}
+</script>
+</body>
+</html>

@@ -115,129 +115,44 @@ function showTab(tab) {
   }
 }
 
-let regOtpCooldown = null;
-
-async function sendRegOTP(type) {
-  const phone = document.getElementById('phone').value;
-  if (!phone || phone.length !== 10) {
-    alert('Please enter a valid 10-digit phone number first');
-    return;
-  }
-  const url = type === 'worker' ? CONFIG.WORKER_AUTH_URL : CONFIG.WORKFINDER_AUTH_URL;
-
-  // Check if phone already registered
-  try {
-    const checkRes = await fetch(`${url}/api/check-phone`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone })
-    });
-    if (!checkRes.ok) {
-      const d = await checkRes.json();
-      alert(d.message);
-      return;
-    }
-  } catch (err) {
-    alert('Error checking phone: ' + err.message);
-    return;
-  }
-
-  try {
-    const res = await fetch(`${url}/api/send-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone })
-    });
-    const data = await res.json();
-    if (!res.ok) { alert('Failed to send OTP: ' + data.message); return; }
-    alert('OTP sent to your phone!');
-    startRegOtpCooldown();
-  } catch (err) {
-    alert('Error sending OTP: ' + err.message);
-  }
-}
-
-function startRegOtpCooldown() {
-  const sendBtn = document.getElementById('sendRegOtpBtn');
-  const resendBtn = document.getElementById('resendRegOtpBtn');
-  const timer = document.getElementById('regOtpTimer');
-  sendBtn.style.display = 'none';
-  resendBtn.style.display = 'block';
-  resendBtn.disabled = true;
-  let seconds = 30;
-  timer.textContent = `Resend in ${seconds}s`;
-  clearInterval(regOtpCooldown);
-  regOtpCooldown = setInterval(() => {
-    seconds--;
-    if (seconds <= 0) {
-      clearInterval(regOtpCooldown);
-      resendBtn.disabled = false;
-      timer.textContent = '';
-    } else {
-      timer.textContent = `Resend in ${seconds}s`;
-    }
-  }, 1000);
-}
-
-async function registerWorker(e) {
+async function sendOTP(e) {
   e.preventDefault();
-  
-  if (!userLocation) {
-    alert('Please capture your location first');
-    return;
-  }
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const address = document.getElementById('address').value.trim();
+  const error = document.getElementById('regError');
+  error.textContent = '';
 
-  const phone = document.getElementById('phone').value;
-  const regOtp = document.getElementById('regOtp').value;
-  if (!regOtp) { alert('Please enter the OTP sent to your phone'); return; }
+  if (!name) { error.textContent = 'Please enter your name'; return; }
+  if (!/^\d{10}$/.test(phone)) { error.textContent = 'Enter a valid 10-digit mobile number'; return; }
+  if (!address) { error.textContent = 'Please enter your address'; return; }
 
+  // Check phone uniqueness
   try {
-    const otpRes = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/verify-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, otp: regOtp })
+    const checkRes = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/check-phone`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
     });
-    const otpData = await otpRes.json();
-    if (!otpRes.ok) { alert('Invalid OTP: ' + (otpData.error || otpData.message)); return; }
-  } catch (err) {
-    alert('OTP verification failed: ' + err.message);
-    return;
-  }
+    if (!checkRes.ok) { const d = await checkRes.json(); error.textContent = d.message; return; }
+  } catch (err) { error.textContent = 'Network error. Try again.'; return; }
 
-  const data = {
-    name: document.getElementById('name').value,
-    phone: document.getElementById('phone').value,
-    workerType: document.getElementById('workerType').value,
-    skills: document.getElementById('skills').value.split(',').map(s => s.trim()),
-    experience: parseInt(document.getElementById('experience').value),
-    languages: [currentLang],
-    location: userLocation,
-    address: document.getElementById('address').value
-  };
-  
+  // Send OTP
   try {
-    const response = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+    const res = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/send-otp`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
     });
-    
-    const result = await response.json();
-    
-    if (response.ok) {
-      speak('Registration successful');
-      alert('Registration successful! Worker ID: ' + result.workerId);
-      localStorage.setItem('workerId', result.workerId);
-      window.location.href = '../../worker-dashboard/frontend/dashboard.html';
-    } else {
-      alert('Registration failed: ' + result.message);
-    }
-  } catch (err) {
-    alert('Error: ' + err.message);
-  }
+    if (!res.ok) { const d = await res.json(); error.textContent = d.message || 'Failed to send OTP'; return; }
+  } catch (err) { error.textContent = 'Network error. Try again.'; return; }
+
+  localStorage.setItem('reg_name', name);
+  localStorage.setItem('reg_phone', phone);
+  localStorage.setItem('reg_address', address);
+  window.location.href = 'verify.html';
 }
 
-async function sendOTP(type) {
+async function sendOTPLogin(type) {
+  const phone = document.getElementById('loginPhone').value;
   const phone = document.getElementById('loginPhone').value;
   if (!phone || phone.length !== 10) {
     alert('Please enter a valid 10-digit phone number first');

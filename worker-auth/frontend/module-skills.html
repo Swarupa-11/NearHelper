@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Module & Skills – NearHelper</title>
+<link rel="stylesheet" href="css/style.css"/>
+<style>
+  .steps { display:flex; justify-content:center; gap:8px; padding:16px 30px; background:#f8f9ff; border-bottom:1px solid #e8ecff; }
+  .step { width:32px; height:6px; border-radius:3px; background:#e2e8f0; }
+  .step.active { background:#667eea; }
+  .step.done { background:#10b981; }
+
+  .section-label { font-size:13px; font-weight:600; color:#374151; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px; }
+  .module-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+  .module-card { background:#f8fafc; border:2px solid #e2e8f0; border-radius:16px; padding:20px 10px; text-align:center; cursor:pointer; transition:0.3s; }
+  .module-card:hover { border-color:#667eea; background:#f0f0ff; }
+  .module-card.selected { border-color:#667eea; background:#eef2ff; }
+  .module-card span { font-size:34px; display:block; margin-bottom:8px; }
+  .module-card p { margin:0; font-size:14px; font-weight:600; color:#374151; }
+
+  .skills-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .skill-chip { background:#f8fafc; border:2px solid #e2e8f0; border-radius:10px; padding:10px; text-align:center; cursor:pointer; font-size:13px; font-weight:500; transition:0.3s; color:#374151; }
+  .skill-chip:hover { border-color:#667eea; }
+  .skill-chip.selected { border-color:#667eea; background:#eef2ff; color:#667eea; }
+
+  .agri-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+  .agri-card { background:#f8fafc; border:2px solid #e2e8f0; border-radius:16px; padding:18px 10px; text-align:center; cursor:pointer; transition:0.3s; }
+  .agri-card:hover { border-color:#667eea; }
+  .agri-card.selected { border-color:#667eea; background:#eef2ff; }
+  .agri-card span { font-size:30px; display:block; margin-bottom:6px; }
+  .agri-card p { margin:0; font-size:13px; font-weight:600; color:#374151; }
+
+  .section-box { background:#f8fafc; border-radius:14px; padding:18px; margin-bottom:16px; border:1px solid #e2e8f0; }
+  .hidden { display:none; }
+
+  input[type="text"] { width:100%; padding:12px 16px; border:2px solid #e2e8f0; border-radius:12px; font-size:14px; font-family:Poppins,sans-serif; color:#1e293b; background:#fff; outline:none; box-sizing:border-box; margin-top:8px; }
+  input[type="text"]:focus { border-color:#667eea; box-shadow:0 0 0 4px rgba(102,126,234,0.1); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-left">
+      <span class="header-icon">🛠️</span>
+      <div>
+        <h1>Module & Skills</h1>
+        <div class="header-sub">Tell us what kind of work you do</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step done"></div>
+    <div class="step done"></div>
+    <div class="step active"></div>
+    <div class="step"></div>
+  </div>
+
+  <div class="form-container">
+    <div class="section-label">Select your work module</div>
+    <div class="module-grid">
+      <div class="module-card" id="card-domestic" onclick="toggleModule('domestic')">
+        <span>🏠</span><p>Domestic</p>
+      </div>
+      <div class="module-card" id="card-agricultural" onclick="toggleModule('agricultural')">
+        <span>🌾</span><p>Agricultural</p>
+      </div>
+    </div>
+
+    <!-- Domestic Skills -->
+    <div class="section-box hidden" id="domesticSection">
+      <div class="section-label">Domestic Skills</div>
+      <div class="skills-grid">
+        <div class="skill-chip" onclick="toggleSkill(this,'painter')">🎨 Painter</div>
+        <div class="skill-chip" onclick="toggleSkill(this,'carpenter')">🪚 Carpenter</div>
+        <div class="skill-chip" onclick="toggleSkill(this,'masonry')">🧱 Masonry</div>
+        <div class="skill-chip" onclick="toggleSkill(this,'plumber')">🔧 Plumber</div>
+        <div class="skill-chip" onclick="toggleSkill(this,'electrician')">⚡ Electrician</div>
+        <div class="skill-chip" onclick="toggleSkill(this,'house maid')">🧹 House Maid</div>
+        <div class="skill-chip" onclick="toggleSkill(this,'tutor')">📚 Tutor</div>
+        <div class="skill-chip" onclick="toggleSkill(this,'driver')">🚗 Driver</div>
+        <div class="skill-chip" id="otherChip" onclick="toggleSkill(this,'other')">➕ Other</div>
+      </div>
+      <div class="hidden" id="otherInput">
+        <input type="text" id="otherSkillText" placeholder="Enter your skill"/>
+      </div>
+    </div>
+
+    <!-- Agricultural -->
+    <div class="section-box hidden" id="agriculturalSection">
+      <div class="section-label">Agricultural Role</div>
+      <div class="agri-grid">
+        <div class="agri-card" id="card-equipment" onclick="selectAgriRole('equipment')">
+          <span>🚜</span><p>Equipment Provider</p>
+        </div>
+        <div class="agri-card" id="card-cropbuyer" onclick="selectAgriRole('cropbuyer')">
+          <span>🌽</span><p>Crop Buyer</p>
+        </div>
+      </div>
+      <div class="hidden" id="equipmentInput">
+        <input type="text" id="equipmentList" placeholder="e.g. tractor, harvester, plough"/>
+      </div>
+    </div>
+
+    <p id="error" style="color:#ef4444;font-size:13px;text-align:center;min-height:18px;"></p>
+    <button class="submit-btn" onclick="proceed()">Next →</button>
+    <div class="back-link"><a href="profile-photo.html">← Back</a></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (!localStorage.getItem('reg_otp_verified')) window.location.href = 'index.html';
+});
+
+const selectedModules = new Set();
+const selectedDomesticSkills = new Set();
+let agriRole = null;
+
+function toggleModule(module) {
+  const card = document.getElementById('card-' + module);
+  if (selectedModules.has(module)) { selectedModules.delete(module); card.classList.remove('selected'); }
+  else { selectedModules.add(module); card.classList.add('selected'); }
+  document.getElementById('domesticSection').classList.toggle('hidden', !selectedModules.has('domestic'));
+  document.getElementById('agriculturalSection').classList.toggle('hidden', !selectedModules.has('agricultural'));
+  if (!selectedModules.has('agricultural')) {
+    agriRole = null;
+    document.getElementById('card-equipment').classList.remove('selected');
+    document.getElementById('card-cropbuyer').classList.remove('selected');
+    document.getElementById('equipmentInput').classList.add('hidden');
+  }
+}
+
+function toggleSkill(el, skill) {
+  if (skill === 'other') {
+    const sel = el.classList.toggle('selected');
+    document.getElementById('otherInput').classList.toggle('hidden', !sel);
+    if (!sel) selectedDomesticSkills.delete('__other__'); else selectedDomesticSkills.add('__other__');
+    return;
+  }
+  if (el.classList.toggle('selected')) selectedDomesticSkills.add(skill);
+  else selectedDomesticSkills.delete(skill);
+}
+
+function selectAgriRole(role) {
+  agriRole = role;
+  document.getElementById('card-equipment').classList.toggle('selected', role === 'equipment');
+  document.getElementById('card-cropbuyer').classList.toggle('selected', role === 'cropbuyer');
+  document.getElementById('equipmentInput').classList.toggle('hidden', role !== 'equipment');
+}
+
+function proceed() {
+  const error = document.getElementById('error');
+  error.textContent = '';
+  if (selectedModules.size === 0) { error.textContent = 'Please select at least one module'; return; }
+  if (selectedModules.has('domestic') && selectedDomesticSkills.size === 0) { error.textContent = 'Please select at least one domestic skill'; return; }
+  if (selectedModules.has('agricultural') && !agriRole) { error.textContent = 'Please select your agricultural role'; return; }
+
+  const skills = [];
+  if (selectedModules.has('domestic')) {
+    selectedDomesticSkills.forEach(s => {
+      if (s === '__other__') { const c = document.getElementById('otherSkillText').value.trim(); if (c) skills.push(c.toLowerCase()); }
+      else skills.push(s);
+    });
+  }
+  if (selectedModules.has('agricultural')) {
+    if (agriRole === 'cropbuyer') skills.push('crop buyer');
+    else if (agriRole === 'equipment') {
+      const eq = document.getElementById('equipmentList').value.trim();
+      if (!eq) { error.textContent = 'Please list your equipment'; return; }
+      eq.split(',').forEach(e => { if (e.trim()) skills.push(e.trim().toLowerCase()); });
+    }
+  }
+
+  localStorage.setItem('reg_modules', JSON.stringify([...selectedModules]));
+  localStorage.setItem('reg_skills', JSON.stringify(skills));
+  localStorage.setItem('reg_agriRole', agriRole || '');
+  window.location.href = 'location-availability.html';
+}
+</script>
+</body>
+</html>
