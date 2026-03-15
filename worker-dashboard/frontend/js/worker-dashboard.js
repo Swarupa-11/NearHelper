@@ -264,10 +264,81 @@ async function loadRequestCount() {
 }
 
 // Settings
+const translations = {
+  en: {
+    profile: 'Profile', requests: 'Job Requests', availability: 'Availability & Location', settings: 'Settings', logout: 'Logout',
+    myProfile: 'My Profile', phone: 'Phone', type: 'Type', skills: 'Skills', experience: 'Experience', address: 'Address', rating: 'Rating',
+    editProfile: 'Edit Profile', skillsEdit: 'Skills (comma separated)', experienceEdit: 'Experience (years)', updateProfile: 'Update Profile',
+    jobRequests: 'Job Requests', all: 'All', pending: 'Pending', accepted: 'Accepted', completed: 'Completed',
+    availabilityTitle: 'Availability & Location', availabilityStatus: 'Availability Status', available: 'Available', busy: 'Busy',
+    completionTime: 'Expected Completion Time', setTime: 'Set Time', updateLocation: 'Update My Current Location',
+    settingsTitle: 'Settings', language: 'Language', theme: 'Theme', light: 'Light', dark: 'Dark', blue: 'Blue', green: 'Green',
+    deleteAccount: 'Delete Account', deleteWarning: 'Once you delete your account, there is no going back. Please be certain.'
+  },
+  hi: {
+    profile: 'प्रोफ़ाइल', requests: 'काम के अनुरोध', availability: 'उपलब्धता और स्थान', settings: 'सेटिंग्स', logout: 'लॉगआउट',
+    myProfile: 'मेरी प्रोफ़ाइल', phone: 'फ़ोन', type: 'प्रकार', skills: 'कौशल', experience: 'अनुभव', address: 'पता', rating: 'रेटिंग',
+    editProfile: 'प्रोफ़ाइल संपादित करें', skillsEdit: 'कौशल (अल्पविराम से अलग)', experienceEdit: 'अनुभव (वर्ष)', updateProfile: 'प्रोफ़ाइल अपडेट करें',
+    jobRequests: 'काम के अनुरोध', all: 'सभी', pending: 'लंबित', accepted: 'स्वीकृत', completed: 'पूर्ण',
+    availabilityTitle: 'उपलब्धता और स्थान', availabilityStatus: 'उपलब्धता स्थिति', available: 'उपलब्ध', busy: 'व्यस्त',
+    completionTime: 'अपेक्षित समापन समय', setTime: 'समय सेट करें', updateLocation: 'मेरा वर्तमान स्थान अपडेट करें',
+    settingsTitle: 'सेटिंग्स', language: 'भाषा', theme: 'थीम', light: 'हल्का', dark: 'गहरा', blue: 'नीला', green: 'हरा',
+    deleteAccount: 'खाता हटाएं', deleteWarning: 'एक बार खाता हटाने के बाद वापस नहीं जा सकते।'
+  },
+  te: {
+    profile: 'ప్రొఫైల్', requests: 'జాబ్ అభ్యర్థనలు', availability: 'అందుబాటు & స్థానం', settings: 'సెట్టింగ్లు', logout: 'లాగౌట్',
+    myProfile: 'నా ప్రొఫైల్', phone: 'ఫోన్', type: 'రకం', skills: 'నైపుణ్యాలు', experience: 'అనుభవం', address: 'చిరునామా', rating: 'రేటింగ్',
+    editProfile: 'ప్రొఫైల్ సవరించు', skillsEdit: 'నైపుణ్యాలు (కామాతో వేరు చేయండి)', experienceEdit: 'అనుభవం (సంవత్సరాలు)', updateProfile: 'ప్రొఫైల్ నవీకరించు',
+    jobRequests: 'జాబ్ అభ్యర్థనలు', all: 'అన్నీ', pending: 'పెండింగ్', accepted: 'అంగీకరించబడింది', completed: 'పూర్తయింది',
+    availabilityTitle: 'అందుబాటు & స్థానం', availabilityStatus: 'అందుబాటు స్థితి', available: 'అందుబాటులో', busy: 'బిజీ',
+    completionTime: 'అంచనా పూర్తి సమయం', setTime: 'సమయం సెట్ చేయి', updateLocation: 'నా ప్రస్తుత స్థానం నవీకరించు',
+    settingsTitle: 'సెట్టింగ్లు', language: 'భాష', theme: 'థీమ్', light: 'లైట్', dark: 'డార్క్', blue: 'బ్లూ', green: 'గ్రీన్',
+    deleteAccount: 'ఖాతా తొలగించు', deleteWarning: 'ఖాతా తొలగించిన తర్వాత వెనక్కి వెళ్ళలేరు.'
+  },
+  ta: {
+    profile: 'சுயவிவரம்', requests: 'வேலை கோரிக்கைகள்', availability: 'கிடைக்கும் தன்மை & இடம்', settings: 'அமைப்புகள்', logout: 'வெளியேறு',
+    myProfile: 'என் சுயவிவரம்', phone: 'தொலைபேசி', type: 'வகை', skills: 'திறன்கள்', experience: 'அனுபவம்', address: 'முகவரி', rating: 'மதிப்பீடு',
+    editProfile: 'சுயவிவரம் திருத்து', skillsEdit: 'திறன்கள் (காற்புள்ளியால் பிரிக்கவும்)', experienceEdit: 'அனுபவம் (ஆண்டுகள்)', updateProfile: 'சுயவிவரம் புதுப்பி',
+    jobRequests: 'வேலை கோரிக்கைகள்', all: 'அனைத்தும்', pending: 'நிலுவையில்', accepted: 'ஏற்றுக்கொள்ளப்பட்டது', completed: 'முடிந்தது',
+    availabilityTitle: 'கிடைக்கும் தன்மை & இடம்', availabilityStatus: 'கிடைக்கும் நிலை', available: 'கிடைக்கும்', busy: 'பிஸி',
+    completionTime: 'எதிர்பார்க்கப்படும் முடிவு நேரம்', setTime: 'நேரம் அமை', updateLocation: 'என் தற்போதைய இடத்தை புதுப்பி',
+    settingsTitle: 'அமைப்புகள்', language: 'மொழி', theme: 'தீம்', light: 'லைட்', dark: 'டார்க்', blue: 'ப்ளூ', green: 'க்ரீன்',
+    deleteAccount: 'கணக்கை நீக்கு', deleteWarning: 'கணக்கை நீக்கிய பிறகு திரும்ப முடியாது.'
+  },
+  kn: {
+    profile: 'ಪ್ರೊಫೈಲ್', requests: 'ಕೆಲಸದ ವಿನಂತಿಗಳು', availability: 'ಲಭ್ಯತೆ & ಸ್ಥಳ', settings: 'ಸೆಟ್ಟಿಂಗ್ಗಳು', logout: 'ಲಾಗೌಟ್',
+    myProfile: 'ನನ್ನ ಪ್ರೊಫೈಲ್', phone: 'ಫೋನ್', type: 'ಪ್ರಕಾರ', skills: 'ಕೌಶಲ್ಯಗಳು', experience: 'ಅನುಭವ', address: 'ವಿಳಾಸ', rating: 'ರೇಟಿಂಗ್',
+    editProfile: 'ಪ್ರೊಫೈಲ್ ಸಂಪಾದಿಸಿ', skillsEdit: 'ಕೌಶಲ್ಯಗಳು (ಅಲ್ಪವಿರಾಮದಿಂದ ಪ್ರತ್ಯೇಕಿಸಿ)', experienceEdit: 'ಅನುಭವ (ವರ್ಷಗಳು)', updateProfile: 'ಪ್ರೊಫೈಲ್ ನವೀಕರಿಸಿ',
+    jobRequests: 'ಕೆಲಸದ ವಿನಂತಿಗಳು', all: 'ಎಲ್ಲಾ', pending: 'ಬಾಕಿ', accepted: 'ಸ್ವೀಕರಿಸಲಾಗಿದೆ', completed: 'ಪೂರ್ಣಗೊಂಡಿದೆ',
+    availabilityTitle: 'ಲಭ್ಯತೆ & ಸ್ಥಳ', availabilityStatus: 'ಲಭ್ಯತೆ ಸ್ಥಿತಿ', available: 'ಲಭ್ಯವಿದೆ', busy: 'ಬ್ಯುಸಿ',
+    completionTime: 'ನಿರೀಕ್ಷಿತ ಪೂರ್ಣಗೊಳಿಸುವ ಸಮಯ', setTime: 'ಸಮಯ ಹೊಂದಿಸಿ', updateLocation: 'ನನ್ನ ಪ್ರಸ್ತುತ ಸ್ಥಳ ನವೀಕರಿಸಿ',
+    settingsTitle: 'ಸೆಟ್ಟಿಂಗ್ಗಳು', language: 'ಭಾಷೆ', theme: 'ಥೀಮ್', light: 'ಲೈಟ್', dark: 'ಡಾರ್ಕ್', blue: 'ಬ್ಲೂ', green: 'ಗ್ರೀನ್',
+    deleteAccount: 'ಖಾತೆ ಅಳಿಸಿ', deleteWarning: 'ಖಾತೆ ಅಳಿಸಿದ ನಂತರ ಹಿಂತಿರುಗಲು ಸಾಧ್ಯವಿಲ್ಲ.'
+  },
+  ml: {
+    profile: 'പ്രൊഫൈൽ', requests: 'ജോബ് അഭ്യർത്ഥനകൾ', availability: 'ലഭ്യത & സ്ഥലം', settings: 'ക്രമീകരണങ്ങൾ', logout: 'ലോഗൗട്ട്',
+    myProfile: 'എന്റെ പ്രൊഫൈൽ', phone: 'ഫോൺ', type: 'തരം', skills: 'കഴിവുകൾ', experience: 'അനുഭവം', address: 'വിലാസം', rating: 'റേറ്റിംഗ്',
+    editProfile: 'പ്രൊഫൈൽ എഡിറ്റ് ചെയ്യുക', skillsEdit: 'കഴിവുകൾ (കോമയാൽ വേർതിരിക്കുക)', experienceEdit: 'അനുഭവം (വർഷങ്ങൾ)', updateProfile: 'പ്രൊഫൈൽ അപ്ഡേറ്റ് ചെയ്യുക',
+    jobRequests: 'ജോബ് അഭ്യർത്ഥനകൾ', all: 'എല്ലാം', pending: 'തീർപ്പാക്കാത്തത്', accepted: 'സ്വീകരിച്ചു', completed: 'പൂർത്തിയായി',
+    availabilityTitle: 'ലഭ്യത & സ്ഥലം', availabilityStatus: 'ലഭ്യതാ നില', available: 'ലഭ്യമാണ്', busy: 'ബിസി',
+    completionTime: 'പ്രതീക്ഷിത പൂർത്തീകരണ സമയം', setTime: 'സമയം സജ്ജമാക്കുക', updateLocation: 'എന്റെ നിലവിലെ സ്ഥലം അപ്ഡേറ്റ് ചെയ്യുക',
+    settingsTitle: 'ക്രമീകരണങ്ങൾ', language: 'ഭാഷ', theme: 'തീം', light: 'ലൈറ്റ്', dark: 'ഡാർക്ക്', blue: 'ബ്ലൂ', green: 'ഗ്രീൻ',
+    deleteAccount: 'അക്കൗണ്ട് ഇല്ലാതാക്കുക', deleteWarning: 'അക്കൗണ്ട് ഇല്ലാതാക്കിയ ശേഷം തിരിച്ചുപോകാൻ കഴിയില്ല.'
+  }
+};
+
+function applyTranslations(lang) {
+  const t = translations[lang];
+  document.querySelectorAll('[data-translate]').forEach(el => {
+    const key = el.getAttribute('data-translate');
+    if (t[key]) el.textContent = t[key];
+  });
+}
+
 function changeLanguage() {
   const lang = document.getElementById('languageSelect').value;
   localStorage.setItem('language', lang);
-  alert('Language changed to ' + lang);
+  applyTranslations(lang);
 }
 
 function changeTheme(theme) {
@@ -302,5 +373,6 @@ function logout() {
 }
 
 // Initialize
+applyTranslations(savedLang);
 loadWorkerProfile();
 loadRequestCount();
