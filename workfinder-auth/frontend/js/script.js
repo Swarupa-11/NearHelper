@@ -175,7 +175,7 @@ async function sendOTP(type) {
   }
 }
 
-
+async function loginUser(e) {
   e.preventDefault();
   
   const phone = document.getElementById('loginPhone').value;

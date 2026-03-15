@@ -180,7 +180,7 @@ async function sendOTP(type) {
   }
 }
 
-
+async function loginWorker(e) {
   e.preventDefault();
   
   const phone = document.getElementById('loginPhone').value;
