@@ -118,4 +118,4 @@ app.post('/api/verify-otp', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`Worker Auth Server running on port ${PORT} - v2`));
+app.listen(PORT, () => console.log(`Worker Auth Server running on port ${PORT} - v3`));
