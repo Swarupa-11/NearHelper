@@ -31,11 +31,12 @@
 
     <div class="form-group">
       <label>Enter OTP</label>
-      <input type="tel" id="otp" maxlength="6" placeholder="• • • • • •" class="otp-input"/>
+      <input type="tel" id="otp" maxlength="6" placeholder="• • • • • •" class="otp-input" oninput="onOTPInput()"/>
     </div>
 
     <p id="error" style="color:#ef4444;font-size:13px;text-align:center;min-height:18px;"></p>
-    <button class="submit-btn" onclick="verifyOTP()">Verify & Continue →</button>
+    <button class="submit-btn" id="confirmOTPBtn" onclick="confirmOTP()" disabled style="margin-bottom:10px;">✅ Confirm OTP</button>
+    <button class="submit-btn" id="continueBtn" onclick="verifyAndContinue()" style="display:none;">Continue →</button>
 
     <div class="resend-row">
       <span id="timerText">Resend in <strong id="countdown">30</strong>s</span>
@@ -50,6 +51,7 @@
 <script>
 let countdown = 30;
 let timer;
+let otpConfirmed = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   const phone = localStorage.getItem('reg_phone');
@@ -57,6 +59,18 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('phoneDisplay').textContent = '+91 ' + phone;
   startCountdown();
 });
+
+function onOTPInput() {
+  const otp = document.getElementById('otp').value.trim();
+  document.getElementById('confirmOTPBtn').disabled = otp.length < 4;
+  // Reset confirmed state if user edits OTP
+  if (otpConfirmed) {
+    otpConfirmed = false;
+    document.getElementById('continueBtn').style.display = 'none';
+    document.getElementById('confirmOTPBtn').style.display = 'block';
+    document.getElementById('error').textContent = '';
+  }
+}
 
 function startCountdown() {
   countdown = 30;
@@ -76,6 +90,11 @@ function startCountdown() {
 
 async function resendOTP() {
   const phone = localStorage.getItem('reg_phone');
+  otpConfirmed = false;
+  document.getElementById('continueBtn').style.display = 'none';
+  document.getElementById('confirmOTPBtn').style.display = 'block';
+  document.getElementById('otp').value = '';
+  document.getElementById('confirmOTPBtn').disabled = true;
   try {
     const res = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/send-otp`, {
       method: 'POST',
@@ -94,12 +113,17 @@ async function resendOTP() {
   }
 }
 
-async function verifyOTP() {
+async function confirmOTP() {
   const otp = document.getElementById('otp').value.trim();
   const phone = localStorage.getItem('reg_phone');
   const error = document.getElementById('error');
+  const btn = document.getElementById('confirmOTPBtn');
 
   if (!otp || otp.length < 4) { error.textContent = 'Please enter the OTP'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+  error.textContent = '';
 
   try {
     const res = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/verify-otp`, {
@@ -107,16 +131,32 @@ async function verifyOTP() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, otp })
     });
+    const d = await res.json();
     if (res.ok) {
+      otpConfirmed = true;
       localStorage.setItem('reg_otp_verified', 'true');
-      window.location.href = 'profile-photo.html';
+      btn.textContent = '✅ OTP Confirmed!';
+      btn.style.background = '#22c55e';
+      error.style.color = '#22c55e';
+      error.textContent = 'OTP verified successfully!';
+      document.getElementById('continueBtn').style.display = 'block';
     } else {
-      const d = await res.json();
-      error.textContent = d.error || d.message || 'Invalid OTP';
+      error.style.color = '#ef4444';
+      error.textContent = d.message || 'Invalid OTP';
+      btn.textContent = '✅ Confirm OTP';
+      btn.disabled = false;
     }
   } catch (err) {
+    error.style.color = '#ef4444';
     error.textContent = 'Network error. Try again.';
+    btn.textContent = '✅ Confirm OTP';
+    btn.disabled = false;
   }
+}
+
+function verifyAndContinue() {
+  if (!otpConfirmed) { document.getElementById('error').textContent = 'Please confirm OTP first'; return; }
+  window.location.href = 'profile-photo.html';
 }
 </script>
 </body>

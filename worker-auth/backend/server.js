@@ -101,16 +101,18 @@ app.post('/api/send-otp', async (req, res) => {
 // Verify OTP
 app.post('/api/verify-otp', async (req, res) => {
   const { phone, otp } = req.body;
+  if (!phone || !otp) return res.status(400).json({ message: 'Phone and OTP are required' });
   try {
     const result = await getTwilioClient().verify.v2.services(VERIFY_SERVICE_SID)
-      .verificationChecks.create({ to: `+91${phone}`, code: otp });
+      .verificationChecks.create({ to: `+91${phone}`, code: String(otp).trim() });
     if (result.status === 'approved') {
       res.json({ message: 'OTP verified', verified: true });
     } else {
-      res.status(400).json({ message: 'Invalid OTP' });
+      res.status(400).json({ message: 'Invalid or expired OTP. Please try again.' });
     }
   } catch (err) {
-    res.status(400).json({ message: 'Invalid OTP', error: err.message });
+    const msg = err.code === 20404 ? 'OTP expired or already used. Please resend.' : 'Verification failed. Please resend OTP.';
+    res.status(400).json({ message: msg, error: err.message });
   }
 });
 
