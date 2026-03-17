@@ -81,11 +81,13 @@ app.post('/api/check-phone', async (req, res) => {
 // Send OTP
 app.post('/api/send-otp', async (req, res) => {
   const { phone } = req.body;
+  console.log('send-otp called, VERIFY_SERVICE_SID:', VERIFY_SERVICE_SID, 'ACCOUNT_SID:', process.env.TWILIO_ACCOUNT_SID?.slice(0,6));
   try {
     await getTwilioClient().verify.v2.services(VERIFY_SERVICE_SID)
       .verifications.create({ to: `+91${phone}`, channel: 'sms' });
     res.json({ message: 'OTP sent successfully' });
   } catch (err) {
+    console.error('Twilio send-otp error:', err.message, 'code:', err.code);
     res.status(500).json({ message: 'Failed to send OTP', error: err.message });
   }
 });
