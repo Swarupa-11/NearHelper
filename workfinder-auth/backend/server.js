@@ -112,6 +112,14 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// Temp debug - check if password is set for a phone
+app.post('/api/debug-check', async (req, res) => {
+  const { phone } = req.body;
+  const user = await WorkFinder.findOne({ phone });
+  if (!user) return res.status(404).json({ message: 'Not found' });
+  res.json({ hasPassword: !!user.password, passwordLength: user.password ? user.password.length : 0 });
+});
+
 // Reset Password
 app.post('/api/reset-password', async (req, res) => {
   try {
