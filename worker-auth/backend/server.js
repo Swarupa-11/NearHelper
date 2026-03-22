@@ -111,12 +111,14 @@ app.post('/api/register', upload.single('profilePhoto'), async (req, res) => {
   }
 });
 
-// Login Worker (phone + password)
+// Login Worker
 app.post('/api/login', async (req, res) => {
   try {
     const { phone, password } = req.body;
     const worker = await Worker.findOne({ phone });
     if (!worker) return res.status(404).json({ message: 'Mobile number not registered' });
+
+    if (!worker.password) return res.status(401).json({ message: 'Account has no password set. Please use Forgot Password to set one.' });
 
     const match = await bcrypt.compare(password, worker.password);
     if (!match) return res.status(401).json({ message: 'Incorrect password' });

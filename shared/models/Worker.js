@@ -5,7 +5,7 @@ const workerSchema = new mongoose.Schema({
   phone: { type: String, required: true, unique: true },
   aadhaar: { type: String },
   workerType: { type: String, enum: ['domestic', 'agricultural', 'both'], required: true, lowercase: true },
-  password: { type: String, required: true },
+  password: { type: String },
   skills: [{ type: String, lowercase: true }],
   experience: { type: Number },
   languages: [{ type: String, lowercase: true }],

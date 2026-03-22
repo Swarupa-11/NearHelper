@@ -101,6 +101,8 @@ app.post('/api/login', async (req, res) => {
     const workFinder = await WorkFinder.findOne({ phone });
     if (!workFinder) return res.status(404).json({ message: 'Mobile number not registered' });
 
+    if (!workFinder.password) return res.status(401).json({ message: 'Account has no password set. Please use Forgot Password to set one.' });
+
     const match = await bcrypt.compare(password, workFinder.password);
     if (!match) return res.status(401).json({ message: 'Incorrect password' });
 
