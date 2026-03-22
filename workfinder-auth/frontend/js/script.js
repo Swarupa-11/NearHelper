@@ -180,117 +180,99 @@ function startRegOtpCooldown() {
 async function registerUser(e) {
   e.preventDefault();
   
-  if (!userLocation) {
-    alert('Please capture your location first');
-    return;
-  }
+  if (!userLocation) { alert('Please capture your location first'); return; }
 
   const phone = document.getElementById('phone').value;
   const regOtp = document.getElementById('regOtp').value;
-  if (!regOtp) { alert('Please enter the OTP sent to your phone'); return; }
+  const password = document.getElementById('regPassword').value;
+  const confirmPassword = document.getElementById('regConfirmPassword').value;
+  const error = document.getElementById('regError');
+  error.textContent = '';
 
+  if (!regOtp) { error.textContent = 'Please enter the OTP sent to your phone'; return; }
+  if (password.length < 6) { error.textContent = 'Password must be at least 6 characters'; return; }
+  if (password !== confirmPassword) { error.textContent = 'Passwords do not match'; return; }
+
+  // Verify OTP
   try {
     const otpRes = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/verify-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, otp: regOtp })
     });
     const otpData = await otpRes.json();
-    if (!otpRes.ok) { alert('Invalid OTP: ' + (otpData.error || otpData.message)); return; }
-  } catch (err) {
-    alert('OTP verification failed: ' + err.message);
-    return;
-  }
+    if (!otpRes.ok) { error.textContent = otpData.message || 'Invalid OTP'; return; }
+  } catch (err) { error.textContent = 'OTP verification failed'; return; }
 
-  const data = {
-    name: document.getElementById('name').value,
-    phone: document.getElementById('phone').value,
-    userType: document.getElementById('userType').value,
-    location: userLocation,
-    address: document.getElementById('address').value
-  };
-  
+  // Register
   try {
     const response = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('name').value,
+        phone,
+        userType: document.getElementById('userType').value,
+        location: userLocation,
+        address: document.getElementById('address').value,
+        password
+      })
     });
-    
     const result = await response.json();
-    
     if (response.ok) {
-      speak('Registration successful');
-      alert('Registration successful!');
       localStorage.setItem('workFinderId', result.workFinderId);
       window.location.href = '../../workfinder-dashboard/frontend/dashboard.html';
     } else {
-      alert('Registration failed: ' + result.message);
+      error.textContent = result.message || 'Registration failed';
     }
-  } catch (err) {
-    alert('Error: ' + err.message);
-  }
+  } catch (err) { error.textContent = 'Network error. Try again.'; }
 }
 
-async function sendOTP(type) {
-  const phone = document.getElementById('loginPhone').value;
-  if (!phone || phone.length !== 10) {
-    alert('Please enter a valid 10-digit phone number first');
-    return;
-  }
+async function sendLoginOTP() {
+  const phone = document.getElementById('loginPhone').value.trim();
+  const error = document.getElementById('loginError');
+  if (!/^\d{10}$/.test(phone)) { error.textContent = 'Enter a valid 10-digit mobile number'; return; }
   try {
-    const url = type === 'worker' ? CONFIG.WORKER_AUTH_URL : CONFIG.WORKFINDER_AUTH_URL;
-    const res = await fetch(`${url}/api/send-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/send-otp`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })
     });
     const data = await res.json();
-    if (res.ok) {
-      alert('OTP sent to your phone!');
-    } else {
-      alert('Failed to send OTP: ' + data.message);
-    }
-  } catch (err) {
-    alert('Error sending OTP: ' + err.message);
-  }
+    if (!res.ok) { error.textContent = data.message || 'Failed to send OTP'; return; }
+    error.style.color = '#22c55e';
+    error.textContent = 'OTP sent!';
+    setTimeout(() => { error.textContent = ''; error.style.color = '#ef4444'; }, 3000);
+  } catch (err) { error.textContent = 'Network error. Try again.'; }
 }
 
 async function loginUser(e) {
   e.preventDefault();
-  
-  const phone = document.getElementById('loginPhone').value;
-  const otp = document.getElementById('otp').value;
-  
+  const phone = document.getElementById('loginPhone').value.trim();
+  const otp = document.getElementById('otp').value.trim();
+  const error = document.getElementById('loginError');
+  error.textContent = '';
+
+  if (!/^\d{10}$/.test(phone)) { error.textContent = 'Enter a valid 10-digit mobile number'; return; }
+  if (!otp) { error.textContent = 'Please enter the OTP'; return; }
+
   try {
-    const otpResponse = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/verify-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    // Verify OTP
+    const otpRes = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/verify-otp`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, otp })
     });
-    
-    if (!otpResponse.ok) {
-      alert('Invalid OTP');
-      return;
-    }
-    
+    const otpData = await otpRes.json();
+    if (!otpRes.ok) { error.textContent = otpData.message || 'Invalid OTP'; return; }
+
+    // Login
     const response = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })
     });
-    
     const result = await response.json();
-    
     if (response.ok) {
-      speak('Login successful');
-      alert('Login successful!');
       localStorage.setItem('workFinderId', result.workFinderId);
       window.location.href = '../../workfinder-dashboard/frontend/dashboard.html';
     } else {
-      alert('Login failed: ' + result.message);
+      error.textContent = result.message || 'Login failed';
     }
-  } catch (err) {
-    alert('Error: ' + err.message);
-  }
+  } catch (err) { error.textContent = 'Network error. Try again.'; }
 }

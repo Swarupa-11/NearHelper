@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const workFinderSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phone: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
   userType: { type: String, enum: ['household', 'farmer'], required: true },
   location: {
     type: { type: String, default: 'Point' },
