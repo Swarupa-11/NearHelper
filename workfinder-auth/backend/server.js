@@ -115,9 +115,16 @@ app.post('/api/login', async (req, res) => {
 // Temp debug - check if password is set for a phone
 app.post('/api/debug-check', async (req, res) => {
   const { phone } = req.body;
-  const user = await WorkFinder.findOne({ phone });
+  // Use lean() + raw collection to bypass any schema caching
+  const user = await WorkFinder.findOne({ phone }).lean();
   if (!user) return res.status(404).json({ message: 'Not found' });
-  res.json({ hasPassword: !!user.password, passwordLength: user.password ? user.password.length : 0 });
+  // Also read raw from MongoDB collection
+  const raw = await WorkFinder.collection.findOne({ phone });
+  res.json({
+    mongoose: { hasPassword: !!user.password, passwordLength: user.password ? user.password.length : 0 },
+    raw: { hasPassword: !!raw.password, passwordLength: raw.password ? raw.password.length : 0 },
+    phone: user.phone
+  });
 });
 
 // Reset Password
@@ -127,13 +134,13 @@ app.post('/api/reset-password', async (req, res) => {
     if (!phone || !password) return res.status(400).json({ message: 'Phone and password are required' });
 
     const hashed = await bcrypt.hash(password, 10);
-    const result = await WorkFinder.findOneAndUpdate(
+    // Use raw collection update to bypass any Mongoose schema restrictions
+    const result = await WorkFinder.collection.updateOne(
       { phone },
-      { $set: { password: hashed } },
-      { new: true }
+      { $set: { password: hashed } }
     );
-    if (!result) return res.status(404).json({ message: 'Mobile number not registered' });
-    res.json({ message: 'Password updated successfully' });
+    if (result.matchedCount === 0) return res.status(404).json({ message: 'Mobile number not registered' });
+    res.json({ message: 'Password updated successfully', matched: result.matchedCount, modified: result.modifiedCount });
   } catch (err) {
     res.status(500).json({ message: 'Reset failed', error: err.message });
   }
