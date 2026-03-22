@@ -116,10 +116,15 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/reset-password', async (req, res) => {
   try {
     const { phone, password } = req.body;
-    const workFinder = await WorkFinder.findOne({ phone });
-    if (!workFinder) return res.status(404).json({ message: 'Mobile number not registered' });
-    workFinder.password = await bcrypt.hash(password, 10);
-    await workFinder.save();
+    if (!phone || !password) return res.status(400).json({ message: 'Phone and password are required' });
+
+    const hashed = await bcrypt.hash(password, 10);
+    const result = await WorkFinder.findOneAndUpdate(
+      { phone },
+      { $set: { password: hashed } },
+      { new: true }
+    );
+    if (!result) return res.status(404).json({ message: 'Mobile number not registered' });
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Reset failed', error: err.message });
