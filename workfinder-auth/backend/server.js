@@ -94,12 +94,16 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Login WorkFinder (phone + OTP)
+// Login WorkFinder (phone + password)
 app.post('/api/login', async (req, res) => {
   try {
-    const { phone } = req.body;
+    const { phone, password } = req.body;
     const workFinder = await WorkFinder.findOne({ phone });
     if (!workFinder) return res.status(404).json({ message: 'Mobile number not registered' });
+
+    const match = await bcrypt.compare(password, workFinder.password);
+    if (!match) return res.status(401).json({ message: 'Incorrect password' });
+
     res.json({ message: 'Login successful', workFinderId: workFinder._id.toString(), userType: workFinder.userType });
   } catch (err) {
     res.status(500).json({ message: 'Login failed', error: err.message });

@@ -226,46 +226,20 @@ async function registerUser(e) {
   } catch (err) { error.textContent = 'Network error. Try again.'; }
 }
 
-async function sendLoginOTP() {
-  const phone = document.getElementById('loginPhone').value.trim();
-  const error = document.getElementById('loginError');
-  if (!/^\d{10}$/.test(phone)) { error.textContent = 'Enter a valid 10-digit mobile number'; return; }
-  try {
-    const res = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/send-otp`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone })
-    });
-    const data = await res.json();
-    if (!res.ok) { error.textContent = data.message || 'Failed to send OTP'; return; }
-    error.style.color = '#22c55e';
-    error.textContent = 'OTP sent!';
-    setTimeout(() => { error.textContent = ''; error.style.color = '#ef4444'; }, 3000);
-  } catch (err) { error.textContent = 'Network error. Try again.'; }
-}
-
 async function loginUser(e) {
   e.preventDefault();
   const phone = document.getElementById('loginPhone').value.trim();
-  const otp = document.getElementById('otp').value.trim();
+  const password = document.getElementById('loginPassword').value;
   const error = document.getElementById('loginError');
   error.textContent = '';
 
   if (!/^\d{10}$/.test(phone)) { error.textContent = 'Enter a valid 10-digit mobile number'; return; }
-  if (!otp) { error.textContent = 'Please enter the OTP'; return; }
+  if (!password) { error.textContent = 'Please enter your password'; return; }
 
   try {
-    // Verify OTP
-    const otpRes = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/verify-otp`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, otp })
-    });
-    const otpData = await otpRes.json();
-    if (!otpRes.ok) { error.textContent = otpData.message || 'Invalid OTP'; return; }
-
-    // Login
     const response = await fetch(`${CONFIG.WORKFINDER_AUTH_URL}/api/login`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone })
+      body: JSON.stringify({ phone, password })
     });
     const result = await response.json();
     if (response.ok) {
