@@ -148,6 +148,7 @@ async function sendOTP(e) {
   localStorage.setItem('reg_name', name);
   localStorage.setItem('reg_phone', phone);
   localStorage.setItem('reg_address', address);
+  localStorage.setItem('otp_flow', 'registration');
   window.location.href = 'verify.html';
 }
 
@@ -177,39 +178,28 @@ async function sendOTPLogin(type) {
 
 async function loginWorker(e) {
   e.preventDefault();
-  
-  const phone = document.getElementById('loginPhone').value;
-  const otp = document.getElementById('otp').value;
-  
+  const phone = document.getElementById('loginPhone').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const error = document.getElementById('loginError');
+  error.textContent = '';
+
+  if (!/^\d{10}$/.test(phone)) { error.textContent = 'Enter a valid 10-digit mobile number'; return; }
+  if (!password) { error.textContent = 'Please enter your password'; return; }
+
   try {
-    const otpResponse = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/verify-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, otp })
-    });
-    
-    if (!otpResponse.ok) {
-      alert('Invalid OTP');
-      return;
-    }
-    
     const response = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone })
+      body: JSON.stringify({ phone, password })
     });
-    
     const result = await response.json();
-    
     if (response.ok) {
-      speak('Login successful');
-      alert('Login successful!');
       localStorage.setItem('workerId', result.workerId);
       window.location.href = '../../worker-dashboard/frontend/dashboard.html';
     } else {
-      alert('Login failed: ' + result.message);
+      error.textContent = result.message || 'Login failed';
     }
   } catch (err) {
-    alert('Error: ' + err.message);
+    error.textContent = 'Network error. Try again.';
   }
 }

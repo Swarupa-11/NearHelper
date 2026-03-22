@@ -71,13 +71,16 @@
         </div>
 
         <div class="form-group">
-          <label>OTP Verification</label>
-          <button type="button" onclick="sendOTPLogin('worker')" class="submit-btn" style="margin-bottom:10px;">📱 Send OTP</button>
-          <input type="text" id="otp" maxlength="6" placeholder="Enter OTP received on your phone">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" required>
         </div>
 
+        <p id="loginError" style="color:#ef4444;font-size:13px;text-align:center;min-height:18px;"></p>
         <button type="submit" class="submit-btn" id="loginBtn">Login →</button>
 
+        <div class="back-link" style="margin-top:12px;">
+          <a href="forgot-password.html" style="color:#667eea;">Forgot Password?</a>
+        </div>
         <div class="back-link">New here? <a href="#" onclick="showTab('register')">Create an account</a></div>
         <div class="back-link" style="margin-top:10px;"><a href="../../index.html">← Back to Home</a></div>
       </form>

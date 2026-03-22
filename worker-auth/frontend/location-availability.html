@@ -128,32 +128,38 @@ async function completeRegistration() {
 
   const modules = JSON.parse(localStorage.getItem('reg_modules') || '[]');
   const photoData = localStorage.getItem('reg_photo');
+  const password = localStorage.getItem('reg_password');
 
-  const payload = {
-    name: localStorage.getItem('reg_name'),
-    phone: localStorage.getItem('reg_phone'),
-    address: localStorage.getItem('reg_address'),
-    workerType: modules.length === 2 ? 'both' : (modules[0] || 'domestic'),
-    skills: JSON.parse(localStorage.getItem('reg_skills') || '[]'),
-    experience: 0,
-    languages: ['en'],
-    location: userLocation,
-    availability,
-    expectedCompletionTime: availability === 'busy' ? document.getElementById('busyUntil').value : null,
-    profilePhoto: photoData || null
-  };
+  if (!password) { error.textContent = 'Session expired. Please restart registration.'; return; }
+
+  const formData = new FormData();
+  formData.append('name', localStorage.getItem('reg_name'));
+  formData.append('phone', localStorage.getItem('reg_phone'));
+  formData.append('address', localStorage.getItem('reg_address'));
+  formData.append('workerType', modules.length === 2 ? 'both' : (modules[0] || 'domestic'));
+  formData.append('skills', localStorage.getItem('reg_skills') || '[]');
+  formData.append('lat', userLocation.lat);
+  formData.append('lng', userLocation.lng);
+  formData.append('availability', availability);
+  formData.append('password', password);
+  if (availability === 'busy') formData.append('expectedCompletionTime', document.getElementById('busyUntil').value);
+
+  // Convert base64 photo to blob if exists
+  if (photoData) {
+    const blob = await fetch(photoData).then(r => r.blob());
+    formData.append('profilePhoto', blob, 'profile.jpg');
+  }
 
   try {
     const res = await fetch(`${CONFIG.WORKER_AUTH_URL}/api/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: formData
     });
     const result = await res.json();
 
     if (res.ok) {
       localStorage.setItem('workerId', result.workerId);
-      ['reg_name','reg_phone','reg_address','reg_photo','reg_modules','reg_skills','reg_agriRole','reg_otp_verified']
+      ['reg_name','reg_phone','reg_address','reg_photo','reg_modules','reg_skills','reg_agriRole','reg_otp_verified','reg_password']
         .forEach(k => localStorage.removeItem(k));
       window.location.href = '../../worker-dashboard/frontend/dashboard.html';
     } else {

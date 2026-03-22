@@ -1,5 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const bcrypt = require('bcryptjs');
 const connectDB = require('./config/database');
 const Worker = require('./models/Worker');
 const twilio = require('twilio');
@@ -14,9 +18,19 @@ function getTwilioClient() {
 
 connectDB();
 
+// Uploads directory
+const uploadDir = path.join(__dirname, '../frontend/uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname.replace(/\s/g, '_'))
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+
 app.use(cors({ origin: '*' }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('../frontend'));
 
 app.options('*', (req, res) => {
@@ -24,40 +38,6 @@ app.options('*', (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.sendStatus(200);
-});
-
-// Register Worker
-app.post('/api/register', async (req, res) => {
-  try {
-    const { name, phone, workerType, skills, experience, languages, location, address, availability, expectedCompletionTime, profilePhoto, equipmentPhotos } = req.body;
-    const existingWorker = await Worker.findOne({ phone });
-    if (existingWorker) return res.status(400).json({ message: 'Phone number already registered' });
-    const worker = new Worker({
-      name, phone, workerType, skills, experience, languages,
-      location: { type: 'Point', coordinates: [location.lng, location.lat] },
-      address,
-      availability: availability || 'available',
-      expectedCompletionTime: expectedCompletionTime || null,
-      profilePhoto: profilePhoto || null,
-      equipmentPhotos: equipmentPhotos || []
-    });
-    await worker.save();
-    res.status(201).json({ message: 'Registration successful', workerId: worker._id });
-  } catch (err) {
-    res.status(500).json({ message: 'Registration failed', error: err.message });
-  }
-});
-
-// Login Worker
-app.post('/api/login', async (req, res) => {
-  try {
-    const { phone } = req.body;
-    const worker = await Worker.findOne({ phone });
-    if (!worker) return res.status(404).json({ message: 'Worker not found' });
-    res.json({ message: 'Login successful', workerId: worker._id, workerType: worker.workerType });
-  } catch (err) {
-    res.status(500).json({ message: 'Login failed', error: err.message });
-  }
 });
 
 // Check phone uniqueness
@@ -68,7 +48,7 @@ app.post('/api/check-phone', async (req, res) => {
   res.json({ available: true });
 });
 
-// Send OTP
+// Send OTP (registration & forgot password)
 app.post('/api/send-otp', async (req, res) => {
   const { phone } = req.body;
   try {
@@ -95,6 +75,78 @@ app.post('/api/verify-otp', async (req, res) => {
   } catch (err) {
     const msg = err.code === 20404 ? 'OTP expired or already used. Please resend.' : 'Verification failed. Please resend OTP.';
     res.status(400).json({ message: msg, error: err.message });
+  }
+});
+
+// Register Worker (multipart/form-data with profile photo)
+app.post('/api/register', upload.single('profilePhoto'), async (req, res) => {
+  try {
+    const { name, phone, workerType, skills, address, availability, expectedCompletionTime, lat, lng, password } = req.body;
+
+    const existingWorker = await Worker.findOne({ phone });
+    if (existingWorker) {
+      if (req.file) fs.unlinkSync(req.file.path);
+      return res.status(400).json({ message: 'Phone number already registered' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const worker = new Worker({
+      name,
+      phone,
+      workerType,
+      skills: JSON.parse(skills || '[]'),
+      location: { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
+      address,
+      availability: availability || 'available',
+      expectedCompletionTime: expectedCompletionTime || null,
+      profilePhoto: req.file ? '/uploads/' + req.file.filename : null,
+      password: hashedPassword
+    });
+
+    await worker.save();
+    res.status(201).json({ message: 'Registration successful', workerId: worker._id });
+  } catch (err) {
+    res.status(500).json({ message: 'Registration failed', error: err.message });
+  }
+});
+
+// Login Worker (phone + password)
+app.post('/api/login', async (req, res) => {
+  try {
+    const { phone, password } = req.body;
+    const worker = await Worker.findOne({ phone });
+    if (!worker) return res.status(404).json({ message: 'Mobile number not registered' });
+
+    const match = await bcrypt.compare(password, worker.password);
+    if (!match) return res.status(401).json({ message: 'Incorrect password' });
+
+    res.json({ message: 'Login successful', workerId: worker._id, workerType: worker.workerType });
+  } catch (err) {
+    res.status(500).json({ message: 'Login failed', error: err.message });
+  }
+});
+
+// Check phone exists (for forgot password)
+app.post('/api/check-phone-exists', async (req, res) => {
+  const { phone } = req.body;
+  const worker = await Worker.findOne({ phone });
+  if (!worker) return res.status(404).json({ message: 'Mobile number not registered' });
+  res.json({ exists: true });
+});
+
+// Reset Password
+app.post('/api/reset-password', async (req, res) => {
+  try {
+    const { phone, password } = req.body;
+    const worker = await Worker.findOne({ phone });
+    if (!worker) return res.status(404).json({ message: 'Mobile number not registered' });
+
+    worker.password = await bcrypt.hash(password, 10);
+    await worker.save();
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Reset failed', error: err.message });
   }
 });
 

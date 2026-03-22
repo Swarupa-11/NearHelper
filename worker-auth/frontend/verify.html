@@ -156,7 +156,8 @@ async function confirmOTP() {
 
 function verifyAndContinue() {
   if (!otpConfirmed) { document.getElementById('error').textContent = 'Please confirm OTP first'; return; }
-  window.location.href = 'profile-photo.html';
+  const flow = localStorage.getItem('otp_flow');
+  window.location.href = flow === 'forgot' ? 'reset-password.html' : 'set-password.html';
 }
 </script>
 </body>
